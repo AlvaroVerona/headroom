@@ -61,6 +61,73 @@ recalibrate placeholder thresholds once real data exists).
   approach (clean data reconciles by construction; injected noise is what
   breaks it, on purpose, for the quality engine to catch).
 
+## Phase 1 data generation — real bugs found and fixed
+
+- **Balance never reached equilibrium; 34% of all customer-months ended up
+  pinned exactly at the credit ceiling** (`src/credit_limit_optimizer/
+  data/behavior_series.py`). The original payment mechanic paid a tiny
+  contractual minimum (~3% of balance, floor €25) regardless of ongoing
+  spend, which for most non-full-payoff customers is far smaller than
+  their monthly spend — balance necessarily grows every month with no
+  equilibrium, eventually hitting and sticking at the limit. Fixed by
+  making the *actual* payment a real fraction of balance
+  (`REVOLVER_PAYOFF_FRACTION_BY_SEGMENT`, replacing the old scheduled-
+  amount-based payment), calibrated by solving the steady-state equation
+  `balance* = spend*(1-f)/f` for each segment's target utilization, then
+  empirically re-checked (full-payoff months periodically zero the
+  balance and pull the time-average utilization below the pure-revolver
+  formula's prediction, so the analytical solve is a starting point, not
+  the final answer).
+- **Even after that fix, subprime stayed pinned at the ceiling (65.5% of
+  subprime customer-months).** The steady-state formula showed subprime's
+  equilibrium balance was mathematically >100% of their limit given their
+  spend_ratio/revolver_fraction/limit_multiple combination — no fraction
+  of REALISTIC payoff behavior could keep it under the limit; they were
+  guaranteed to hit and stay at the ceiling by construction. Fixed with
+  two changes: (1) spend is now constrained by available headroom
+  (`credit_limit - balance_prev`) before it's added to balance — a real
+  card purchase that would exceed the limit gets declined, it doesn't
+  silently inflate balance past the ceiling and then get clipped, which
+  is what pinned utilization at exactly 100.000% rather than letting it
+  fluctuate just under it; (2) `LIMIT_INCOME_MULTIPLE_BY_SEGMENT["subprime"]`
+  raised 0.8 -> 1.0. Result: subprime settled at ~67% average utilization,
+  10.7% at-cap (down from 65.5%) -- realistic for a segment that
+  genuinely does run close to its limit, without being permanently
+  pinned there. Both bugs are regression-tested in `test_data_generation.py`
+  (`test_utilization_not_pinned_at_ceiling`, `test_utilization_ordered_by_segment`).
+- **The AR(1) "distress" shock initially had almost no effect on the
+  default rate no matter how much persistence was increased** —
+  `rho*prev + (1-rho)*innovation` looks like a standard AR(1) but actually
+  *shrinks* variance as rho rises (the innovation weight shrinks faster
+  than persistence extends memory), so raising persistence barely moved
+  the default_12m rate. Fixed with the correct parametrization
+  (`rho*prev + sqrt(1-rho^2)*innovation`), which holds variance constant
+  regardless of rho — after that, persistence and the shock coefficient
+  actually calibrate the way you'd expect. Landed on `DISTRESS_PERSISTENCE
+  = 0.92`, `DISTRESS_SHOCK_COEF = 0.14`, giving a stable ~4.5-4.8%
+  default_12m rate across all three snapshot cohorts (train/validation/
+  test), with a realistic, non-degenerate segment gradient (prime ~2.4%,
+  near_prime ~4.5%, subprime ~7.7%).
+- **`payment_ratio` (paid/scheduled) has a heavy right skew** (median
+  ~12.8x, 89.5% of months > 5x) once the payoff-fraction fix above was in
+  place — this is mathematically expected, not a bug: `scheduled_amount`
+  is deliberately a small contractual-minimum floor (3% of balance),
+  while most non-distressed customers now genuinely pay a much larger
+  real fraction of their balance. Left as-is in the raw data (an honest
+  reflection of "how far above the minimum did they pay"); feature
+  engineering should cap or log-transform it before using it as a model
+  input, not the generator's job to produce an artificially bounded
+  distribution.
+- **transactions.csv is a deliberate SAMPLE, not an exhaustive replay of
+  every purchase** (~4.3-4.5M rows at full 50,000-customer scale, still
+  ~9x the spec's 500,000+ floor). A literal "every purchase" interpretation
+  at this customer/month scale would run into the tens of millions of
+  rows — unworkable for iteration speed in a portfolio project. Each
+  customer-month gets up to 3 category-lump transactions instead; the
+  behavioral aggregates a real model trains on
+  (essential_spend/discretionary_spend/etc.) are generated independently
+  in monthly_customer_behavior.csv, not derived from transactions.csv.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
