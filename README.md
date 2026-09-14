@@ -20,7 +20,8 @@ loss simulation and stress testing on top.
 - [x] Phase 1 — foundation (structure, config, logging)
 - [x] Phase 1 — synthetic data generator, tests
 - [x] Phase 1 — data validation
-- [ ] Phase 2 — EDA, feature engineering, data quality reporting
+- [x] Phase 2 — feature engineering
+- [ ] Phase 2 — EDA, data quality reporting
 - [ ] Phase 3 — risk models (Logistic Regression, XGBoost, calibration, SHAP)
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
@@ -92,3 +93,22 @@ make test
   dataset's own issues, the only version of "data quality by segment" that's a coherent
   single number — it now reads Prime 96.2, Near-Prime 96.5, Subprime 96.6, consistent with
   the overall Customers score.
+
+## Feature engineering (Phase 2), actual output from `make features`
+
+- 49 features across demographic, income, credit, behavioral, delinquency, liquidity and
+  3/6-month trend groups (§13), joined against `labels.csv`'s three time-separated
+  snapshot cohorts (train/validation/test, months 12/18/24) — 144,003 total rows (~48,000
+  per cohort; ~2,000 customers per cohort are dropped because their account or profile
+  record was quarantined in Phase 1, not imputed).
+- **No-future-leakage verified, not just asserted**: every trend/rolling feature is
+  recomputed independently from the raw monthly table for a random sample and checked for
+  exact agreement (`test_no_future_leakage_against_raw_monthly_table`).
+- **A real bug found and fixed while building this**: the first version of the 3/6-month
+  growth features used a naive `(current - past) / past` formula, which exploded to
+  absurd magnitudes whenever `past` was near zero — `credit_utilization` and `end_balance`
+  legitimately hit exactly 0 (a customer who pays off in full), and the observed max on
+  the real output was ~1,000,000 for `credit_utilization_3m_growth` and ~1.08e10 for
+  `end_balance_3m_growth`. Fixed by switching to a symmetric relative-change formula,
+  bounded to [-2, 2] whenever both values are non-negative — verified on the real 144,003-
+  row output.

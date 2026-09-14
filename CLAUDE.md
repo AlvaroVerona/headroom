@@ -157,6 +157,43 @@ recalibrate placeholder thresholds once real data exists).
   number once a segment's entire transaction history is folded in too.
   Regression-tested in `test_by_segment_score_is_not_degenerate`.
 
+## Phase 2 feature engineering — real bugs found and fixed
+
+- **Naive growth features exploded to absurd magnitudes** (`src/
+  credit_limit_optimizer/features/engineering.py`). The first version
+  computed trend growth as `(current - past) / past`; `credit_utilization`
+  and `end_balance` legitimately hit exactly 0 (a customer who pays off in
+  full), so the moment `past` was near zero the ratio blew up — observed
+  max on the real 144,003-row output: ~1,000,000 for
+  `credit_utilization_3m_growth`, ~1.08e10 for `end_balance_3m_growth`.
+  Fixed by switching to a symmetric relative-change formula,
+  `(current - past) / ((|current| + |past|) / 2)`, which is mathematically
+  bounded to `[-2, 2]` whenever both values are non-negative (true for
+  every trend variable used here: income, spend, utilization, balance).
+  Regression-tested in `test_feature_engineering.py`
+  (`test_growth_feature_bounded_even_at_near_zero_base`,
+  `test_growth_features_bounded_on_real_data`).
+- **No-future-leakage design**: every rolling/trend feature is computed
+  with pandas `rolling()`/`shift()`/`cummax()` over each customer's own
+  chronologically-sorted 36-month history (sorted by the raw `month`
+  string, not assumed pre-sorted), then the single row at each cohort's
+  own snapshot month (12/18/24) is selected — a feature for snapshot month
+  M is structurally incapable of seeing month M+1 or later. Verified
+  against the real data by recomputing trailing averages directly from
+  `monthly_customer_behavior.csv` for a random sample and asserting exact
+  agreement (`test_no_future_leakage_against_raw_monthly_table`).
+- **Quarantined customers/accounts are dropped via inner join**, not
+  imputed or kept — a risk model has no business training on a record that
+  already failed a Phase 1 quality check. This drops ~2,000 of 50,000
+  customers per cohort (feature table: 144,003 rows across train/
+  validation/test, vs. 150,000 in `labels.csv`).
+- **`credit_exposure`/`cash_buffer` and `employment_tenure_months` carry
+  real NaNs** (2,928 and 2,883 rows respectively, out of 144,003) — these
+  come from Phase 1's MEDIUM/LOW-severity missing-value injections, which
+  stay in the VALIDATED layer (only CRITICAL/HIGH gets quarantined) by
+  design. Left as genuine missing values for the risk model to handle
+  (e.g. XGBoost's native NaN handling), not silently imputed here.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
