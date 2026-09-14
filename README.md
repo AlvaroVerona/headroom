@@ -19,7 +19,7 @@ loss simulation and stress testing on top.
 
 - [x] Phase 1 — foundation (structure, config, logging)
 - [x] Phase 1 — synthetic data generator, tests
-- [ ] Phase 1 — data validation
+- [x] Phase 1 — data validation
 - [ ] Phase 2 — EDA, feature engineering, data quality reporting
 - [ ] Phase 3 — risk models (Logistic Regression, XGBoost, calibration, SHAP)
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
@@ -70,3 +70,25 @@ make test
   references in accounts/transactions/payments.
 - Reproducible: identical seed produces byte-identical output (verified for the full
   pipeline, not just customers.csv — see `tests/test_data_generation.py`).
+
+## Data validation engine (Phase 1), actual output from `make validate-data`
+
+- **Data Quality Score: 98.6 / 100** — by dataset: Customers 96.4, Credit Accounts 96.6,
+  Transactions 98.5, Payments 99.1 (weighted average; every number computed from the
+  actual check results, see `reports/outputs/quality_report.json`).
+- 395,481 issues found across completeness, duplicate, validity and consistency checks on
+  the full 4.37M-row raw dataset (customers + credit_accounts + transactions + payments);
+  77,201 records quarantined for a CRITICAL or HIGH-severity issue. Full validation run:
+  ~20 seconds.
+- RAW → VALIDATED → QUARANTINED lineage is exact for all 4 datasets:
+  `len(processed) + distinct(quarantined) == len(raw)`, verified in tests. Each quarantined
+  record in `data/quarantine/*.csv` carries `record_id, rule_id, severity, reason,
+  detected_at` (§11's exact schema).
+- **A real bug found and fixed while building this**: the `by_segment` score breakdown
+  originally summed issues from all 4 datasets (customers + their transactions + payments +
+  accounts) while dividing by a customer-row-only denominator — a scale mismatch that
+  floored every segment's score to 0.0, since a segment's customers can have tens of
+  thousands of associated transaction rows. Fixed by scoping `by_segment` to the customers
+  dataset's own issues, the only version of "data quality by segment" that's a coherent
+  single number — it now reads Prime 96.2, Near-Prime 96.5, Subprime 96.6, consistent with
+  the overall Customers score.

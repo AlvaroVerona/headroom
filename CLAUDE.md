@@ -128,6 +128,35 @@ recalibrate placeholder thresholds once real data exists).
   (essential_spend/discretionary_spend/etc.) are generated independently
   in monthly_customer_behavior.csv, not derived from transactions.csv.
 
+## Phase 1 validation — real bugs found and fixed
+
+- **`record_id` is position-based, assigned at ingestion, never a business
+  key** (`src/credit_limit_optimizer/data/ingestion.py`, same pattern as
+  breach-point's `row_uid`). A business key (`customer_id`, etc.) can
+  itself be the thing that's missing or duplicated, which is exactly when
+  a row identifier is needed most.
+- **`customer_id` is not unique in the raw data** — duplicate customers
+  are one of the injected quality issues — so building a `customer_id ->
+  segment` lookup via `set_index("customer_id")` raised
+  `InvalidIndexError: Reindexing only valid with uniquely valued Index
+  objects` the first time `_attach_customer_segment` ran on real data.
+  Fixed by deduplicating on `customer_id` before building that lookup (an
+  exact duplicate maps to the same segment regardless of which copy
+  survives the dedup).
+- **`by_segment` score was floored to 0.0 for every segment** — the
+  original implementation summed issues from ALL 4 datasets (a segment's
+  customers, plus their many thousands of associated transaction/payment
+  rows) into the numerator, while dividing by a customer-row-only
+  denominator (`customer_segment.value_counts()`). Numerator and
+  denominator were at completely different scales — e.g. "prime" pulled in
+  136,527 issues (mostly from transactions) against a denominator of only
+  ~17,600 prime customers, guaranteeing the penalty rate clips to 1.0 and
+  the score floors to 0. Fixed by scoping `by_segment` to the customers
+  dataset's own issues only — "data quality by segment" is a coherent
+  question for customer-level fields; it isn't a well-defined single
+  number once a segment's entire transaction history is folded in too.
+  Regression-tested in `test_by_segment_score_is_not_degenerate`.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
