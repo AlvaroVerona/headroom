@@ -1,0 +1,118 @@
+# Headroom — central configuration. Every constant/threshold/seed lives
+# here; nothing is hardcoded in src/. See CLAUDE.md for the reasoning
+# behind non-obvious choices below.
+
+random_seed: 42
+
+data:
+  n_customers: 50000
+  # Extended beyond the spec's illustrative "12-24 months" to 36. The
+  # default_12m label needs a full 12-month FORWARD window observed from
+  # each prediction snapshot, and time-based validation (§15) needs three
+  # separate snapshot dates (train/validation/test) each with its own fully
+  # observed forward window. 36 months is the minimum that fits three
+  # non-degenerate snapshots without truncating any of their label
+  # windows -- see snapshot_months below and CLAUDE.md.
+  n_months: 36
+  start_date: "2023-01-01"
+  target_n_transactions: 500000
+  base_currency: "EUR"
+
+# Prediction snapshot months (1-indexed, into n_months of history) used to
+# build the default_12m label and the time-based train/validation/test
+# split. Each snapshot's features use only data up to and including that
+# month; its label observes default_12m over the following 12 months
+# (snapshot 12 -> observed through month 24; snapshot 24 -> observed
+# through month 36). Snapshots are deliberately NOT evenly spaced samples
+# of the same customers at random times -- they're vintages, the standard
+# credit-risk out-of-time validation design.
+snapshots:
+  train_month: 12
+  validation_month: 18
+  test_month: 24
+  horizon_months: 12
+  min_trailing_months_for_features: 12
+
+quality:
+  duplicate_rate: 0.005
+  missing_rate:
+    default: 0.02
+    annual_income: 0.01
+    employment_status: 0.03
+    optional_metadata: 0.05
+  invalid_rate: 0.01
+  inconsistency_rate: 0.01
+  severity:
+    missing_customer_id: CRITICAL
+    missing_annual_income: HIGH
+    missing_employment_status: MEDIUM
+    missing_credit_limit: CRITICAL
+    duplicate_customer: CRITICAL
+    duplicate_transaction: HIGH
+    invalid_age: HIGH
+    invalid_income: HIGH
+    invalid_credit_limit: HIGH
+    invalid_utilization: HIGH
+    invalid_payment_amount: HIGH
+    inconsistent_available_credit: HIGH
+    inconsistent_balance_exceeds_limit: HIGH
+    invalid_reference_transaction: CRITICAL
+    invalid_reference_account: CRITICAL
+    invalid_reference_payment: CRITICAL
+  tolerance: 0.01
+
+risk:
+  max_pd: 0.08
+  max_dsr: 0.40
+  max_utilization: 0.90
+  # Credit Limit <= income_multiple x monthly_income -- a standard
+  # unsecured-revolving-credit policy shape (typical issuers cap around
+  # 3-5x monthly income for prime borrowers); applied uniformly here, not
+  # varied by segment, to keep the constraint auditable.
+  income_multiple: 4.0
+
+economics:
+  funding_rate: 0.05
+  interchange_rate: 0.012
+  operational_cost_per_customer: 25
+  base_lgd: 0.70
+  # LGD varies by segment (§19) -- unsecured revolving credit has no
+  # collateral, so segment proxies for recovery likelihood via ability/
+  # willingness to cure (prime borrowers cure more often than subprime).
+  lgd_by_segment:
+    prime: 0.55
+    near_prime: 0.70
+    subprime: 0.85
+
+optimization:
+  minimum_limit: 500
+  maximum_limit: 10000
+  step: 500
+  # Placeholder, recalibrated in Phase 5 once the actual generated
+  # portfolio's exposure/loss scale is known (see CLAUDE.md for the
+  # analogous recalibration in the Breach Point project) -- an
+  # arbitrary limit picked before seeing real data is just as likely to
+  # be meaninglessly loose or impossibly tight as Breach Point's original
+  # EUR 1,000,000 example was.
+  portfolio_exposure_limit: 150000000
+  portfolio_expected_loss_limit: 3000000
+  max_average_pd: 0.05
+  max_high_risk_exposure_pct: 0.15
+
+simulation:
+  n_simulations: 10000
+
+scenarios:
+  base: {}
+  recession:
+    income_growth_shift: -0.03
+    spending_shift: -0.10
+    default_multiplier: 1.6
+    funding_rate_shift: 0.01
+  high_interest_rate:
+    funding_rate_shift: 0.03
+    apr_shift: 0.03
+  consumer_stress:
+    income_volatility_multiplier: 1.5
+    delinquency_multiplier: 1.4
+    cash_balance_shift: -0.20
