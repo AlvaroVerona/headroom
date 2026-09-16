@@ -74,6 +74,10 @@ risk:
 economics:
   funding_rate: 0.05
   interchange_rate: 0.012
+  # ANNUAL cost to service one account (statement processing, support,
+  # etc. amortized) -- a typical retail-banking servicing cost order of
+  # magnitude; divided by 12 wherever used against a monthly profit
+  # figure (§22's profitability.py).
   operational_cost_per_customer: 25
   # Flat fee charged in any month a customer has days_past_due > 0 (§20's
   # optional "Late Fees") -- a typical European card-product late fee;
@@ -101,6 +105,18 @@ optimization:
   # EUR 1,000,000 example was.
   portfolio_exposure_limit: 150000000
   portfolio_expected_loss_limit: 3000000
+  # Balance response to a candidate credit limit (§22-23), anchored at
+  # each customer's own observed (current_limit, current_balance) point:
+  # balance(L) = min(current_balance * (L / current_limit) ** elasticity, L).
+  # elasticity < 1 gives diminishing returns by construction (balance
+  # grows slower than L). 0.3 is a documented assumption, not fit from
+  # data: this generator never varies a customer's credit_limit over
+  # their 36-month history, so there is no within-customer limit
+  # variation to estimate a real elasticity from (see profitability.py's
+  # module docstring for why the EAD/PD models can't be reused for this
+  # either -- credit_exposure had ~0 importance in the fitted EAD model
+  # for the same reason).
+  balance_elasticity: 0.3
   max_average_pd: 0.05
   max_high_risk_exposure_pct: 0.15
 

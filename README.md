@@ -30,7 +30,7 @@ loss simulation and stress testing on top.
 - [x] Phase 4 — expected loss model
 - [x] Phase 4 — revenue model
 - [x] Phase 4 — funding cost
-- [ ] Phase 4 — customer profitability
+- [x] Phase 4 — customer profitability
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
 - [ ] Phase 7 — dashboard, documentation, final audit
@@ -304,3 +304,30 @@ already priced via PD/LGD and APR elsewhere).
   customers — verified that every one of the remaining rows is NIM = 0 exactly (zero balance
   that month), never negative, since every segment's APR (16.9-27.9%) comfortably exceeds
   every scenario's funding rate (5-8%).
+
+## Customer profitability (Phase 4), actual output from `make economics` — closes Phase 4
+
+Full model card with per-segment candidate-limit tables and profit curves:
+`reports/model_cards/profitability.md`. Expected Customer Profit = Total Revenue − Expected
+Loss − Funding Cost − Operational Cost, computed both at each customer's current limit and
+across the full €500-€10,000 candidate grid for one representative example customer per
+segment.
+
+- **Introduces the balance-response-to-candidate-limit model** the earlier pieces deferred:
+  `balance(L) = min(current_balance × (L/current_limit)^0.3, L)`, anchored exactly at each
+  customer's own observed point, giving the diminishing-returns concave Limit-vs-Profit curve
+  by construction. Deliberately NOT derived from the EAD/PD models — `credit_exposure` had
+  ~0 importance (rank 13/46) in the fitted EAD regressor, because this generator never varies
+  a customer's credit limit over their history, so neither model ever saw the within-customer
+  variation needed to learn a genuine causal limit-response.
+- **Mean annual Expected Profit by segment: prime €203.08, near_prime €318.02, subprime
+  €299.07** — all positive, portfolio total ~€12.2M/year on the test cohort.
+- **A real bug found and fixed while building this**: the first run produced NEGATIVE mean
+  profit for every segment (prime -€3.42, near_prime -€44.54, subprime -€102.21/month) — not
+  a real economics finding but a units mismatch: Expected Loss is inherently a 12-month
+  figure (PD is a 12-month default probability) while revenue/funding cost were left as
+  monthly figures, so subtracting one from the other was comparing a year of loss against a
+  month of revenue. Caught by cross-checking against the revenue model's own earlier
+  "revenue vs. EL" preview, which had already annualized correctly and found every segment
+  profitable — the disagreement between the two pieces surfaced the bug. Fixed by putting
+  every term on a consistent annual basis.

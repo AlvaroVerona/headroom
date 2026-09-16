@@ -62,13 +62,19 @@ recalibrate placeholder thresholds once real data exists).
   no accuracy reason to prefer the less powerful model once calibration
   is done; LR's role is the required, explicitly-interpretable baseline
   (§14) and comparison point, not a second production candidate.
-- **Balance/spend response to credit limit is a real modeling choice the
-  spec doesn't specify** (needed for the Limit vs. Profit curve in §30 to
-  have a genuine concave shape — more limit should increase utilization
-  and revenue with diminishing returns, capped by income-driven spending
-  capacity, while increasing exposure/expected loss). Document the exact
-  functional form used once built in `src/credit_limit_optimizer/models/
-  profitability.py` and here.
+- **Balance response to a candidate credit limit** (Phase 4, §22):
+  `balance(L) = min(current_balance * (L/current_limit)**elasticity, L)`,
+  `elasticity = 0.3` (`optimization.balance_elasticity`, config-driven).
+  Anchored exactly at each customer's own observed point, `elasticity <
+  1` gives diminishing returns by construction (the concave Limit-vs-
+  Profit shape this note originally asked for), and `min(..., L)`
+  enforces the physical cap. NOT derived from the EAD/PD models: this
+  generator never varies a customer's `credit_limit` over their 36-month
+  history, so `credit_exposure` had ~0 importance (rank 13/46) in the
+  fitted EAD regressor — no within-customer variation for either model to
+  have learned a genuine causal limit-response from, so PD is held
+  constant across candidate limits too. See `profitability.py`'s module
+  docstring for the full reasoning.
 - **Accounting identities in `credit_accounts.csv`** (`utilization_rate ≈
   balance/limit`, `available_credit ≈ limit - balance`) hold exactly in
   the clean generative data and are deliberately broken only in the
@@ -558,6 +564,52 @@ every one of the remaining rows is NIM = 0 exactly from
 `average_balance == 0.0`, never negative — every segment's APR
 (16.9-27.9%) comfortably exceeds every scenario's funding rate (5-8%).
 No bug found while building this piece.
+
+## Phase 4 customer profitability (§22) — real bugs found and fixed
+
+`src/credit_limit_optimizer/models/profitability.py`. Expected Customer
+Profit = Total Revenue − Expected Loss − Funding Cost − Operational Cost,
+computed both at each customer's current/observed limit (portfolio
+summary) and across the full candidate limit grid for one representative
+example customer per segment (§22's own illustrative table format). See
+the "Key decisions" entry above for the balance-response-to-limit model
+this piece introduced.
+
+- **Every segment's mean Expected Profit came out negative on the first
+  run** (prime -€3.42, near_prime -€44.54, subprime -€102.21/month) — a
+  units/period mismatch, not a real economics finding. `expected_loss =
+  PD × LGD × EAD` is inherently a 12-MONTH figure (PD is `default_12m`'s
+  12-month default probability), but revenue and funding cost were left
+  as the MONTHLY figures `revenue_model.py`/`funding_cost.py` compute —
+  subtracting a 12-month loss from a 1-month revenue is guaranteed to
+  look catastrophically unprofitable regardless of the underlying
+  economics. Caught by comparing against `revenue_model.py`'s own
+  "Preview: revenue vs Expected Loss" section, which had already
+  annualized revenue (× 12) before comparing to EL and found every
+  segment solidly profitable — the two pieces disagreed, which is what
+  surfaced the bug. Fixed by putting every term in `evaluate_at_limit` on
+  a consistent ANNUAL basis (revenue/funding cost × 12, "run-rate"
+  annualization of the customer's current-month observed rate; EL and
+  `operational_cost_per_customer`, already annual, used as-is). Result:
+  prime €203.08, near_prime €318.02, subprime €299.07/year — all
+  positive, all in the same ballpark the revenue model's own preview
+  predicted. Regression-tested in
+  `test_evaluate_at_limit_all_components_are_annual` and
+  `test_mean_profit_positive_for_every_segment`.
+- **Stale example-customer `profit_curve_*.png` files left over between
+  runs** — same bug class already fixed once in `explain.py`'s SHAP
+  dependence plots: this module's `FIG_DIR` wasn't cleared before writing
+  new figures, so a customer no longer selected as a segment's example
+  left an orphaned, unreferenced chart behind. Fixed the same way:
+  clear every PNG in `FIG_DIR` at the start of each run. Regression-
+  tested in `test_no_stale_profit_curve_files_left_over`.
+- **The first chosen "example customer" per segment was whichever row
+  happened to be first in the test cohort** — degenerate for prime
+  (€0.00 average_balance, current limit €11,400 outside the candidate
+  grid entirely, so the profit curve was flat and uninformative).
+  Switched to filtering for a within-grid current limit and positive
+  balance, then picking the MEDIAN balance within that pool — a
+  representative, not cherry-picked or degenerate, illustrative example.
 
 ## Engineering principles
 
