@@ -159,6 +159,18 @@ recalibrate placeholder thresholds once real data exists).
 
 ## Phase 2 feature engineering — real bugs found and fixed
 
+- **`FEATURE_COLUMNS["income"]` duplicated `monthly_income_3m_growth`/
+  `6m_growth`**, which the `trend` group already produces (spec §13 lists
+  a single generic `income_growth` under Income, already satisfied by the
+  trend group's per-window growth columns). Selecting the same column name
+  twice via `table[output_cols]` produced two identically-named columns in
+  the DataFrame, which surfaced as `.1`-suffixed duplicate columns on a
+  CSV round-trip (`monthly_income_3m_growth.1`) — caught by inspecting the
+  actual written CSV's column list, not by a passing test (the original
+  test suite didn't check for duplicate names). Fixed by removing the two
+  entries from the `income` group (49 -> 47 real features). Regression-
+  tested (`test_no_duplicate_feature_columns`,
+  `test_output_csv_has_no_dot_one_suffixed_columns`).
 - **Naive growth features exploded to absurd magnitudes** (`src/
   credit_limit_optimizer/features/engineering.py`). The first version
   computed trend growth as `(current - past) / past`; `credit_utilization`

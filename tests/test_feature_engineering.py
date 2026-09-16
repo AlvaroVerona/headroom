@@ -101,6 +101,24 @@ def test_feature_table_has_all_expected_columns(real_feature_table):
     assert not missing, f"missing feature columns: {missing}"
 
 
+def test_no_duplicate_feature_columns():
+    """Regression test: FEATURE_COLUMNS['income'] used to list
+    monthly_income_3m_growth/6m_growth, which the 'trend' group already
+    produces -- selecting the duplicate names produced two identically-
+    named columns in the output, which showed up as '.1'-suffixed columns
+    after a CSV round-trip."""
+    assert len(ALL_FEATURE_COLUMNS) == len(set(ALL_FEATURE_COLUMNS))
+
+
+def test_output_csv_has_no_dot_one_suffixed_columns(real_feature_table, tmp_path):
+    path = tmp_path / "features.csv"
+    output_cols = ["customer_id"] + ALL_FEATURE_COLUMNS
+    real_feature_table[output_cols].to_csv(path, index=False)
+    reread = pd.read_csv(path, nrows=1)
+    dupe_suffixed = [c for c in reread.columns if c.endswith(".1")]
+    assert dupe_suffixed == []
+
+
 def test_feature_table_row_count_matches_cohorts(real_feature_table):
     counts = real_feature_table["cohort"].value_counts()
     assert set(counts.index) == {"train", "validation", "test"}

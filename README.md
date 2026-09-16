@@ -96,7 +96,7 @@ make test
 
 ## Feature engineering (Phase 2), actual output from `make features`
 
-- 49 features across demographic, income, credit, behavioral, delinquency, liquidity and
+- 47 features across demographic, income, credit, behavioral, delinquency, liquidity and
   3/6-month trend groups (§13), joined against `labels.csv`'s three time-separated
   snapshot cohorts (train/validation/test, months 12/18/24) — 144,003 total rows (~48,000
   per cohort; ~2,000 customers per cohort are dropped because their account or profile

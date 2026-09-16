@@ -126,7 +126,12 @@ def build_feature_table(inputs: dict[str, pd.DataFrame], config: dict) -> pd.Dat
 
 FEATURE_COLUMNS = {
     "demographic": ["age", "employment_tenure_months", "customer_tenure_months", "employment_stable"],
-    "income": ["monthly_income", "monthly_income_3m_growth", "monthly_income_6m_growth", "income_volatility", "income_stability"],
+    # income_growth (§13) is covered by monthly_income_3m_growth/6m_growth
+    # in the "trend" group below, not repeated here -- listing it in both
+    # groups produced duplicate-named columns in the output (visible as
+    # ".1"-suffixed columns after a CSV round-trip). Found and fixed while
+    # building this.
+    "income": ["monthly_income", "income_volatility", "income_stability"],
     "credit": ["credit_utilization", "max_utilization", "credit_exposure", "debt_to_income", "payment_ratio", "minimum_payment_ratio"],
     "behavioral": ["transaction_count", "average_transaction_amount", "spending_volatility",
                    "essential_spending_ratio", "discretionary_spending_ratio", "cash_withdrawal_ratio"],
