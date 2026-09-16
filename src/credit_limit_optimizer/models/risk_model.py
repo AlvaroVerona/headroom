@@ -44,11 +44,28 @@ generator never changes a customer's credit_limit over the 36-month
 history, so utilization and balance move in exact lockstep and a
 *relative*-growth ratio of either is scale-invariant to that constant
 limit). `select_model_features` prunes all of these automatically and
-deterministically (greedy, in ALL_FEATURE_COLUMNS order, threshold 0.95,
-fit on the train cohort only -- no leakage) rather than chasing each
-pair by hand. This pruning is specific to the linear baseline -- XGBoost
-(next piece) handles correlated features natively and should use the
-full ALL_FEATURE_COLUMNS set.
+deterministically (greedy, in ALL_FEATURE_COLUMNS order, threshold
+0.93 -- see below for why not 0.95, fit on the train cohort only -- no
+leakage) rather than chasing each pair by hand. This pruning is specific
+to the linear baseline -- XGBoost (next piece) handles correlated
+features natively and should use the full ALL_FEATURE_COLUMNS set.
+
+Threshold lowered from 0.95 to 0.93 after building the SHAP
+explainability piece: its summary plot showed `cash_buffer` (rank #2 by
+importance) with a positive SHAP value for HIGH cash_buffer -- i.e. more
+available headroom reads as MORE risky, backwards from both intuition and
+`cash_buffer`'s own raw correlation with default_12m (-0.083, genuinely
+protective). Root cause: `cash_buffer = credit_exposure - end_balance`
+is r = 0.9465 with `credit_exposure` -- just under the original 0.95 cut,
+so it survived pruning and its coefficient became a multicollinearity
+artifact like the ones documented above, just one that happened to be
+large and prominent enough to show up clearly in a headline chart instead
+of buried at the bottom of a coefficient list. Re-scanning the post-prune
+correlation matrix found three more pairs in the same 0.93-0.95 gap
+(`credit_utilization_3m_avg`/`6m_avg` 0.948, `transaction_count`/
+`monthly_spend_3m_avg` 0.941, `end_balance_12m_avg`/`6m_avg` 0.936) --
+0.93 catches all four while leaving the smaller, already-documented
+`debt_to_income`/`credit_utilization` residual (0.902) alone.
 
 Run: python -m credit_limit_optimizer.models.risk_model
 """
@@ -80,7 +97,7 @@ METRICS_PATH = PROJECT_ROOT / "reports" / "outputs" / "risk_model_baseline_metri
 MODEL_CARD_PATH = PROJECT_ROOT / "reports" / "model_cards" / "logistic_regression.md"
 
 PROTECTED_CHARACTERISTICS = ["age"]
-CORRELATION_PRUNE_THRESHOLD = 0.95
+CORRELATION_PRUNE_THRESHOLD = 0.93
 
 
 def select_model_features(train_df: pd.DataFrame, threshold: float = CORRELATION_PRUNE_THRESHOLD) -> tuple[list[str], dict]:

@@ -26,7 +26,7 @@ loss simulation and stress testing on top.
 - [x] Phase 3 — Logistic Regression baseline
 - [x] Phase 3 — XGBoost advanced model
 - [x] Phase 3 — probability calibration
-- [ ] Phase 3 — SHAP explainability
+- [x] Phase 3 — SHAP explainability
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
@@ -162,8 +162,9 @@ the model is judged on generalizing *forward*, the property that matters for non
 credit risk.
 
 - **ROC-AUC 0.72-0.75** across train/validation/test (PR-AUC 0.15-0.17 against a ~4.7% base
-  rate), from 35 features (of 46 candidates — `age` excluded as a protected characteristic,
-  10 more dropped by automated correlation pruning, see below).
+  rate), from 32 features (of 46 candidates — `age` excluded as a protected characteristic,
+  14 more dropped by automated correlation pruning at a >93% threshold, see below and the
+  Explainability section for why 93% and not the original 95%).
 - **A real bug found and fixed while building this**: the first run's top coefficients
   flatly contradicted the EDA — `monthly_income_6m_avg`/`12m_avg` showed up as the top
   RISK-INCREASING coefficients while `monthly_income_3m_avg` was the top RISK-REDUCING one,
@@ -217,3 +218,27 @@ the miscalibration both risk models' cards flagged.
 - Sigmoid (Platt) won for Logistic Regression, isotonic for XGBoost — chosen per model by
   Brier score on a held-out half of the validation cohort, disjoint from the half used to
   fit the calibrators; the test cohort is touched exactly once, for final reporting only.
+
+## SHAP explainability (Phase 3), actual output from `make explain`
+
+Full report with figures and individual customer examples: `reports/model_cards/explainability.md`.
+Global importance, SHAP summary plot, SHAP dependence plots (top 4 features), and 3 full
+individual customer explanations (lowest/median/highest predicted risk in the sample) for
+both models — `delinquency_count`, `recent_delinquency` and `days_past_due` dominate for
+both, consistent with every prior piece's findings.
+
+- **A real, visible bug found and fixed while building this**: the SHAP summary plot showed
+  `cash_buffer` (rank #2 by importance) with a POSITIVE SHAP value for HIGH `cash_buffer` —
+  more available credit headroom reading as *more* risky, backwards from intuition and from
+  `cash_buffer`'s own raw correlation with `default_12m` (-0.083, genuinely protective).
+  Root cause: `cash_buffer = credit_exposure - end_balance` is r=0.9465 with
+  `credit_exposure` — just under the LR baseline's original 0.95 correlation-pruning cutoff,
+  so it survived and became a coefficient artifact large enough to be immediately visible in
+  a headline chart (smaller residuals from the same cause were already documented as
+  acceptable in the LR baseline's own model card). Fixed by lowering the pruning threshold
+  to 0.93 in `risk_model.py` (catching 3 more near-miss pairs found at the same time) and
+  retraining the LR baseline, calibration, and this piece in sequence — `cash_buffer` no
+  longer appears in the LR model at all.
+- Also fixed: stale dependence-plot images from a previous run's top-N features weren't
+  being cleaned up between runs (harmless until a feature drops out of the top-N, as
+  `cash_buffer` just did) — the output directory is now cleared at the start of each run.

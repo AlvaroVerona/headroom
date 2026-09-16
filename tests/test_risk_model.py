@@ -89,6 +89,20 @@ def test_kept_features_are_pairwise_below_threshold_on_real_train_data(report):
     assert corr.max() <= CORRELATION_PRUNE_THRESHOLD
 
 
+def test_cash_buffer_dropped_for_correlation_with_credit_exposure(report):
+    """Regression test: cash_buffer = credit_exposure - end_balance is
+    r=0.9465 with credit_exposure -- just under the original 0.95 pruning
+    threshold, so it survived and its coefficient became a
+    multicollinearity artifact large enough to show up backwards (higher
+    buffer read as MORE risky) as the #2 feature in the SHAP summary plot,
+    contradicting cash_buffer's own raw correlation with default_12m
+    (negative, genuinely protective). Threshold lowered to 0.93 to catch
+    this and three similar near-miss pairs."""
+    assert "cash_buffer" not in report["features"]
+    assert report["dropped_for_correlation"]["cash_buffer"]["correlated_with"] == "credit_exposure"
+    assert report["dropped_for_correlation"]["cash_buffer"]["correlation"] == pytest.approx(0.9465, abs=0.001)
+
+
 def test_model_and_report_files_written(report):
     assert MODEL_PATH.exists()
     assert METRICS_PATH.exists()

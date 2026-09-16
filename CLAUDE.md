@@ -401,6 +401,53 @@ Uses `sklearn.frozen.FrozenEstimator` (sklearn 1.9's supported mechanism
 for calibrating an already-fitted estimator) rather than the older
 `CalibratedClassifierCV(cv="prefit")` pattern.
 
+## Phase 3 SHAP explainability (§18) — real bug found and fixed
+
+`src/credit_limit_optimizer/models/explain.py`. `shap.LinearExplainer`
+(LR, on the imputed+scaled feature space, exact) and `shap.TreeExplainer`
+with `feature_perturbation="tree_path_dependent"` (XGBoost, exact,
+handles NaN natively) on a 2,000-row sample of the test cohort per
+CLAUDE.md's documented sampling convention. SHAP explains each model's
+own raw decision function, not the calibrated probability (post-hoc,
+non-linear, no well-defined per-feature attribution) — the "Predicted
+Default Probability" shown for each individual customer example comes
+from the calibrated model instead, the actually business-meaningful PD;
+this is a deliberate, documented split of sources, not an inconsistency.
+
+- **Found a real, visible multicollinearity artifact the LR baseline's
+  correlation-pruning threshold (0.95) missed**: the SHAP summary plot
+  showed `cash_buffer` (rank #2 by importance) with a POSITIVE SHAP value
+  for HIGH `cash_buffer` — i.e. more available headroom reading as MORE
+  risky, backwards from intuition and from `cash_buffer`'s own raw
+  correlation with `default_12m` (-0.083, genuinely protective). Unlike
+  the earlier small-magnitude residuals documented in the LR baseline
+  (accepted as normal partial-correlation behavior), this one was large
+  and prominent enough to be immediately visible in a headline chart.
+  Root cause: `cash_buffer = credit_exposure - end_balance` is r=0.9465
+  with `credit_exposure` — just under the original 0.95 pruning cutoff,
+  so it survived and became a coefficient artifact like the others, just
+  a bigger one. Fixed in `risk_model.py`, not here: lowered
+  `CORRELATION_PRUNE_THRESHOLD` to 0.93 (catches this pair plus three
+  more found at the same time in the 0.93-0.95 gap:
+  `credit_utilization_3m_avg`/`6m_avg` 0.948, `transaction_count`/
+  `monthly_spend_3m_avg` 0.941, `end_balance_12m_avg`/`6m_avg` 0.936),
+  retrained the LR baseline (35→32 features), and re-ran calibration.py
+  and explain.py downstream since both depend on the LR model artifact.
+  `cash_buffer` no longer appears in the LR SHAP summary at all.
+  Regression-tested in `test_cash_buffer_dropped_for_correlation_with_
+  credit_exposure` (risk_model) and `test_cash_buffer_not_among_lr_top_
+  features` (explain).
+- **Stale dependence-plot PNGs left over between runs**: `explain.py`
+  wrote dependence plots for the current top-N features but never
+  removed a PNG for a feature that dropped out of the top-N on a
+  subsequent run (exactly what happened to `cash_buffer`'s own
+  now-obsolete dependence plot after the fix above) — the file just sat
+  in `reports/figures/shap/` unreferenced by the model card, silently
+  wrong if anyone browsed the folder directly instead of the card. Fixed
+  by clearing every PNG in `FIG_DIR` at the start of each run (the module
+  owns that directory exclusively). Regression-tested in
+  `test_no_stale_dependence_plots_left_over`.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
