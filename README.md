@@ -27,7 +27,8 @@ loss simulation and stress testing on top.
 - [x] Phase 3 — XGBoost advanced model
 - [x] Phase 3 — probability calibration
 - [x] Phase 3 — SHAP explainability
-- [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
+- [x] Phase 4 — expected loss model
+- [ ] Phase 4 — revenue, funding cost, customer profitability
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
 - [ ] Phase 7 — dashboard, documentation, final audit
@@ -242,3 +243,27 @@ both, consistent with every prior piece's findings.
 - Also fixed: stale dependence-plot images from a previous run's top-N features weren't
   being cleaned up between runs (harmless until a feature drops out of the top-N, as
   `cash_buffer` just did) — the output directory is now cleared at the start of each run.
+
+## Expected Loss model (Phase 4), actual output from `make expected-loss`
+
+Full model card: `reports/model_cards/expected_loss.md`. Expected Loss = PD (calibrated
+XGBoost, forced to 1.0 for customers already at 90+ DPD) × LGD (segment lookup) × EAD (a
+genuine regression model predicting labels.csv's `future_utilization`, R² ~0.58-0.61, then
+scaled by credit limit) — not a formula dressed up as a model.
+
+- **Mean Expected Loss by segment: prime €12.49, near_prime €59.13, subprime €122.45** —
+  correctly ordered. Validation check: mean EL is €112.68 for customers who actually
+  defaulted within 12 months vs. €44.04 for those who didn't (known only from the snapshot,
+  before the outcome exists) — a real, out-of-sample confirmation that the whole PD → LGD →
+  EAD pipeline points the right direction, not just each piece individually.
+- Total portfolio Expected Loss on the test cohort extrapolates to ~€2.93M across the full
+  ~50,000-customer portfolio — remarkably close to `config/settings.yaml`'s
+  `portfolio_expected_loss_limit` placeholder of €3,000,000, set back in Phase 1 before any
+  real computation existed to check it against.
+- **A real bug found and fixed while building this**: `credit_exposure` carries real Phase 1
+  missing-value injections (~2% of rows) — multiplying a missing credit limit into EAD, then
+  Expected Loss, and taking a plain mean/sum silently produced `NaN` for every top-line
+  aggregate, even though the by-segment and by-outcome breakdowns looked fine (`pandas`'
+  `groupby().mean()` skips NaN by default, masking the problem). Fixed by explicitly
+  excluding the affected rows (976 of 48,001 on test) and reporting the exclusion count
+  directly, rather than silently dropping or silently producing NaN.

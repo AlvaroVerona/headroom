@@ -46,7 +46,22 @@ recalibrate placeholder thresholds once real data exists).
   recalibrated once the actual generated portfolio's scale is known (the
   same pattern as breach-point's `liquidity.minimum_cash` recalibration —
   an unrecalibrated limit is just as likely to be meaninglessly loose or
-  impossibly tight as a guess is to be right).
+  impossibly tight as a guess is to be right). Update (Phase 4, expected
+  loss): `portfolio_expected_loss_limit: 3,000,000` turns out to already
+  be a reasonable estimate — the real, computed test-cohort Expected
+  Loss extrapolates to ~€2.93M across the full ~50,000-customer
+  portfolio (see `expected_loss.py`'s model card). Left unchanged;
+  `portfolio_exposure_limit` (150,000,000) still needs the same check
+  once Phase 5's optimization runs produce a real portfolio exposure
+  number to compare against.
+- **The calibrated XGBoost classifier is "the" production PD source**
+  for Expected Loss (Phase 4) and everything downstream (optimization,
+  simulation) — not the LR baseline. It modestly but genuinely
+  outperforms the LR baseline on held-out test data (ROC-AUC 0.730 vs.
+  0.724, PR-AUC 0.165 vs. 0.148) and both are now calibrated, so there's
+  no accuracy reason to prefer the less powerful model once calibration
+  is done; LR's role is the required, explicitly-interpretable baseline
+  (§14) and comparison point, not a second production candidate.
 - **Balance/spend response to credit limit is a real modeling choice the
   spec doesn't specify** (needed for the Limit vs. Profit curve in §30 to
   have a genuine concave shape — more limit should increase utilization
@@ -447,6 +462,44 @@ this is a deliberate, documented split of sources, not an inconsistency.
   by clearing every PNG in `FIG_DIR` at the start of each run (the module
   owns that directory exclusively). Regression-tested in
   `test_no_stale_dependence_plots_left_over`.
+
+## Phase 4 expected loss (§19) — real bug found and fixed
+
+`src/credit_limit_optimizer/models/expected_loss.py`. Expected Loss = PD
+× LGD × EAD. PD from the calibrated XGBoost classifier (forced to 1.0
+for customers already at 90+ DPD at their snapshot — they're not a
+forecast target); LGD from the existing segment lookup; EAD from a
+genuine regression model (XGBoost) predicting labels.csv's
+`future_utilization` from the same feature table and time-based split as
+the risk models (R² ~0.58-0.61 — the scatter shows the model capturing
+*segment*-level utilization equilibria well but less of the within-
+segment variation, consistent with the generator's steady-state design,
+not a modeling shortfall), then `EAD = clip(prediction, 0, 1) ×
+credit_exposure`.
+
+- **`mean_ead`/`mean_expected_loss`/`total_portfolio_expected_loss` came
+  out `NaN`** on the first run, while the by-segment and by-outcome
+  breakdowns looked fine. Root cause: `credit_exposure` carries real
+  Phase 1 injected missing-value issues (~2% of rows, documented since
+  Phase 2) — multiplying a NaN credit_exposure into EAD, then into
+  Expected Loss, and taking a plain `.mean()`/`.sum()` over the whole
+  array propagates that NaN to every aggregate; `pandas.groupby().mean()`
+  silently skips NaN by default, which is why the segment/outcome-
+  conditional numbers looked correct while the top-line ones didn't —
+  easy to miss if you only check the grouped tables. Fixed by explicitly
+  excluding rows with missing `credit_exposure` from the euro-denominated
+  Expected Loss calculation (976 of 48,001 test rows, ~2.0%) and
+  reporting the exclusion count directly in both the log output and the
+  JSON report, rather than silently dropping or silently producing NaN.
+  The EAD model's own R²/MAE are unaffected (predicting
+  `future_utilization` doesn't need `credit_exposure`) and are still
+  evaluated on the full cohort. Regression-tested in
+  `test_expected_loss_has_no_nan`.
+- **Validated, not just computed**: mean EL is higher for customers who
+  actually defaulted within 12 months than for those who didn't (€112.68
+  vs. €44.04, known only from the snapshot before the outcome exists) and
+  ordered prime < near_prime < subprime as expected — both checks pass on
+  the real numbers, not asserted by construction.
 
 ## Engineering principles
 
