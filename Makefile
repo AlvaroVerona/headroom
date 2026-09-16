@@ -1,4 +1,4 @@
-.PHONY: install generate-data validate-data quality-report eda features train calibrate explain economics optimize-customer optimize-portfolio simulate stress monitor test dashboard all clean
+.PHONY: install generate-data validate-data quality-report eda features train train-xgboost calibrate explain economics optimize-customer optimize-portfolio simulate stress monitor test dashboard all clean
 
 PYTHON := python3
 
@@ -22,6 +22,9 @@ features:
 
 train:
 	$(PYTHON) -m credit_limit_optimizer.models.risk_model
+
+train-xgboost:
+	$(PYTHON) -m credit_limit_optimizer.models.xgboost_model
 
 calibrate:
 	$(PYTHON) -m credit_limit_optimizer.models.calibration
@@ -54,7 +57,7 @@ test:
 dashboard:
 	streamlit run app/streamlit_app.py
 
-all: generate-data validate-data quality-report eda features train calibrate explain economics optimize-customer optimize-portfolio simulate stress monitor test
+all: generate-data validate-data quality-report eda features train train-xgboost calibrate explain economics optimize-customer optimize-portfolio simulate stress monitor test
 
 clean:
 	rm -rf data/raw/*.csv data/raw/*.parquet data/processed/*.csv data/processed/*.parquet data/quarantine/*.csv models/*.pkl models/*.joblib models/*.json reports/figures/* reports/outputs/*

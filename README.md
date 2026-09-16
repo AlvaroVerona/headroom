@@ -24,7 +24,8 @@ loss simulation and stress testing on top.
 - [x] Phase 2 — EDA
 - [x] Phase 2 — data quality reporting
 - [x] Phase 3 — Logistic Regression baseline
-- [ ] Phase 3 — XGBoost, calibration, SHAP
+- [x] Phase 3 — XGBoost advanced model
+- [ ] Phase 3 — calibration, SHAP
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
@@ -179,3 +180,25 @@ credit risk.
   'balanced'` (used to handle the ~4.7% base rate) inflates mean predicted probability to
   ~42-48%, roughly 10x the true rate — expected and documented, not a bug; exactly what the
   upcoming Probability Calibration piece (§17) fixes.
+
+## Risk model — XGBoost advanced model (Phase 3), actual output from `make train-xgboost`
+
+Full model card with baseline-vs-advanced comparison table: `reports/model_cards/xgboost.md`.
+Reuses the LR baseline's time-based split; uses the full 46-feature set (no correlation
+pruning needed — trees handle correlated/redundant features natively).
+
+- **ROC-AUC 0.730 on test (vs. 0.724 for the LR baseline)**, PR-AUC 0.165 (vs. 0.148) — a
+  modest, genuine improvement using the complete feature set, the expected trade-off for
+  the interpretability the LR baseline provides instead.
+- **A real bug found and fixed while tuning this**: the first run used log loss as the
+  early-stopping metric, which never triggered early stopping at all (ran the full 500-tree
+  budget) and produced train ROC-AUC 0.879 against test 0.702 — a severe overfit that made
+  the "advanced" model *worse* than the LR baseline, defeating the entire point of building
+  it. Root cause: under reweighted imbalanced training (`scale_pos_weight`), log loss keeps
+  rewarding sharper (already-inflated) predicted probabilities long after real ranking
+  ability on unseen data stops improving. Fixed by early-stopping on ROC-AUC directly (the
+  metric actually reported and compared) plus shallower trees — early stopping now
+  triggers at round 124 of 500, with train/validation/test ROC-AUC sitting close together
+  (~0.73-0.76) instead of collapsing apart.
+- Top gain-based feature importances (`recent_delinquency`, `delinquency_count`,
+  `max_days_past_due`, `credit_utilization`) match the EDA's strongest risk drivers.

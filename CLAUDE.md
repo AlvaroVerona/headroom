@@ -335,6 +335,43 @@ found because it was needed, not planned upfront:
   so a future change to the imbalance-handling strategy doesn't silently
   invalidate this documented behavior.
 
+## Phase 3 risk model — XGBoost advanced model (§14) — real bug found and fixed
+
+`src/credit_limit_optimizer/models/xgboost_model.py`. Reuses the LR
+baseline's data loading and time-based split; uses the full
+`ALL_FEATURE_COLUMNS` set (minus `age`) with no correlation pruning and
+no imputation/scaling, since trees handle both natively.
+
+- **`eval_metric='logloss'` for early stopping caused severe overfitting
+  that made the "advanced" model worse than the baseline.** First run
+  (max_depth=4, min_child_weight=10, `eval_metric='logloss'`,
+  `early_stopping_rounds=30`) never triggered early stopping
+  (`best_iteration=499` of `n_estimators=500` — validation log loss kept
+  inching down for the entire run) and produced train ROC-AUC 0.879
+  against validation 0.729 and test 0.702 — a textbook overfit, and
+  specifically one that scored *worse* on held-out test data than the LR
+  baseline's 0.724, defeating the entire point of building an "advanced"
+  model. Root cause: under `scale_pos_weight`-reweighted training with
+  severe class imbalance, log loss keeps rewarding the model for
+  sharpening its (already inflated, see the LR baseline's calibration
+  note above) predicted probabilities long after its actual ranking
+  ability on unseen data has stopped improving — log loss and ROC-AUC
+  diverge in a way they wouldn't on balanced data. Fixed by switching the
+  early-stopping metric to `auc` (directly matching what's reported and
+  compared against the baseline) and using shallower trees (max_depth 4→3,
+  min_child_weight 10→20). Result: train/validation/test ROC-AUC now sit
+  close together (~0.73-0.76, best_iteration=124 of 500 — stops well
+  before the budget), and the advanced model modestly but genuinely beats
+  the LR baseline on the test cohort (0.730 vs. 0.724 ROC-AUC, 0.165 vs.
+  0.148 PR-AUC) — the expected, sensible outcome. Regression-tested in
+  `test_eval_metric_is_auc_not_logloss`,
+  `test_early_stopping_actually_triggers`,
+  `test_train_test_roc_auc_gap_is_not_a_severe_overfit`, and
+  `test_xgboost_test_roc_auc_beats_or_matches_lr_baseline`.
+- Same `class_weight`-style probability inflation as the LR baseline
+  (mean predicted probability ~42% vs. ~4.5% actual on train, via
+  `scale_pos_weight`) — documented, not a bug, deferred to §17.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
