@@ -23,7 +23,8 @@ loss simulation and stress testing on top.
 - [x] Phase 2 — feature engineering
 - [x] Phase 2 — EDA
 - [x] Phase 2 — data quality reporting
-- [ ] Phase 3 — risk models (Logistic Regression, XGBoost, calibration, SHAP)
+- [x] Phase 3 — Logistic Regression baseline
+- [ ] Phase 3 — XGBoost, calibration, SHAP
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
@@ -149,3 +150,32 @@ the RAW → VALIDATED → QUARANTINED lineage funnel.
   denominator diluted its score from a true ~98.7 to a reported 99.99. Fixed by scoping
   each field's denominator to only the dataset(s) that actually contain that column — the
   same class of bug as the `by_segment` floor-to-0 bug above, milder here but real.
+
+## Risk model — Logistic Regression baseline (Phase 3), actual output from `make train`
+
+Full model card: `reports/model_cards/logistic_regression.md`. Time-based validation
+(§15) reuses the existing snapshot cohorts directly (train = month 12, validation = month
+18, test = month 24) — the same 50,000 customers at successively later points in time, so
+the model is judged on generalizing *forward*, the property that matters for non-stationary
+credit risk.
+
+- **ROC-AUC 0.72-0.75** across train/validation/test (PR-AUC 0.15-0.17 against a ~4.7% base
+  rate), from 35 features (of 46 candidates — `age` excluded as a protected characteristic,
+  10 more dropped by automated correlation pruning, see below).
+- **A real bug found and fixed while building this**: the first run's top coefficients
+  flatly contradicted the EDA — `monthly_income_6m_avg`/`12m_avg` showed up as the top
+  RISK-INCREASING coefficients while `monthly_income_3m_avg` was the top RISK-REDUCING one,
+  even though EDA found default rate falls monotonically with income. Root cause: the
+  income trend windows are r > 0.99 correlated with each other (classic multicollinearity),
+  plus several other exact-duplicate feature pairs (`income_stability` is a literal
+  `1 - income_volatility` transform; `credit_utilization_Nm_growth` is mathematically
+  identical to `end_balance_Nm_growth` in this dataset, since credit limits never change
+  over the 36-month history). Fixed with a deterministic, automated correlation-pruning
+  step (drop any feature > 95% correlated with an already-kept one, computed on the train
+  cohort only) rather than a hand-picked exclusion list — after pruning, top coefficients
+  are directionally consistent with EDA (delinquency and utilization risk-increasing,
+  income risk-reducing).
+- **Predicted probabilities are not yet usable as real PD estimates**: `class_weight=
+  'balanced'` (used to handle the ~4.7% base rate) inflates mean predicted probability to
+  ~42-48%, roughly 10x the true rate — expected and documented, not a bug; exactly what the
+  upcoming Probability Calibration piece (§17) fixes.

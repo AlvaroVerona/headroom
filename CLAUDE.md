@@ -279,6 +279,62 @@ score computation, both fixed there (not just in the report layer):
   `test_by_field_score_scoped_to_owning_datasets_only` and
   `test_by_month_covers_full_history_and_is_not_degenerate`.
 
+## Phase 3 risk model — Logistic Regression baseline (§14) — real bugs found and fixed
+
+`src/credit_limit_optimizer/models/risk_model.py`. Time-based validation
+(§15) comes for free from the existing snapshot cohorts (train = month
+12, validation = month 18, test = month 24) — no extra split logic
+needed, just `cohort == "train"` etc. Feature set excludes `age`
+(protected characteristic, ~0 EDA signal anyway) and any feature that's
+>95% Pearson-correlated (on train only) with an earlier-kept feature —
+found because it was needed, not planned upfront:
+
+- **The first run's top coefficients flatly contradicted the EDA**:
+  `monthly_income_6m_avg`/`12m_avg` were the top RISK-INCREASING
+  coefficients while `monthly_income_3m_avg` was the top RISK-REDUCING
+  one, even though EDA found default rate falls monotonically with
+  income. Root cause: the three trend windows of the same variable are
+  r > 0.99 correlated with each other (rolling averages of a slow-moving
+  series) — textbook multicollinearity, which doesn't hurt ROC-AUC
+  (rank-based) but makes coefficients numerically unstable and
+  uninterpretable, defeating the entire point of an LR baseline (§14:
+  "interpretability, economic intuition"). A first manual fix (keep only
+  the 6m window) still left `monthly_income` (base) at r=0.995 with
+  `monthly_income_6m_avg`, plus several OTHER exact/near-exact duplicate
+  pairs discovered by inspecting the full correlation matrix:
+  `income_stability` is a literal `1 - income_volatility` transform
+  (r=1.0); `minimum_payment_ratio` is r=1.0 with `payment_ratio`;
+  `credit_utilization_Nm_growth` is r=1.0 with `end_balance_Nm_growth`
+  (mathematically inevitable — this generator never changes a customer's
+  `credit_limit` over the 36-month history, so a *relative*-growth ratio
+  of utilization or balance is scale-invariant to that constant limit,
+  making them identical). Replaced the hand-picked exclusion list with
+  `select_model_features`: a deterministic greedy pruner that walks
+  `ALL_FEATURE_COLUMNS` in order and drops any feature more than 95%
+  correlated (train cohort only, no leakage) with an already-kept
+  feature — found 11 such features automatically, more than manual
+  inspection caught. After pruning, top coefficients are directionally
+  consistent with EDA (`delinquency_count`, `days_past_due`,
+  `credit_utilization` all risk-increasing; `monthly_income` risk-
+  reducing). A few small-magnitude coefficients (< 0.03) among
+  features still 0.8-0.95 correlated remain counter-intuitive — expected
+  multivariate partial-correlation behavior once the >0.95 pairs are
+  gone, not pruned further to avoid discarding real information for
+  diminishing interpretability gains on a baseline model. Regression-
+  tested in `test_kept_features_are_pairwise_below_threshold_on_real_train_data`
+  and the `select_model_features` unit tests in `test_risk_model.py`.
+- **`class_weight='balanced'` inflates predicted probabilities far above
+  the true base rate**: mean predicted probability ~42-48% vs. actual
+  base rate ~4.5-4.8% across all three cohorts — improves ranking
+  (ROC-AUC) but makes raw probabilities unusable as PD estimates and
+  Precision/Recall/F1 at the naive 0.5 threshold look strange (precision
+  ~8-10%, recall ~60-70%). Documented as expected, not a bug — this is
+  exactly what the upcoming Probability Calibration piece (§17) exists
+  to fix. Captured as `mean_predicted_probability` in the metrics dict
+  and asserted in `test_probabilities_are_not_naively_assumed_calibrated`
+  so a future change to the imbalance-handling strategy doesn't silently
+  invalidate this documented behavior.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
