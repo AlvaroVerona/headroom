@@ -37,6 +37,7 @@ expected-loss:
 
 economics:
 	$(PYTHON) -m credit_limit_optimizer.models.revenue_model
+	$(PYTHON) -m credit_limit_optimizer.models.funding_cost
 	$(PYTHON) -m credit_limit_optimizer.models.profitability
 
 optimize-customer:

@@ -29,7 +29,8 @@ loss simulation and stress testing on top.
 - [x] Phase 3 — SHAP explainability
 - [x] Phase 4 — expected loss model
 - [x] Phase 4 — revenue model
-- [ ] Phase 4 — funding cost, customer profitability
+- [x] Phase 4 — funding cost
+- [ ] Phase 4 — customer profitability
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
 - [ ] Phase 7 — dashboard, documentation, final audit
@@ -286,3 +287,20 @@ Full model card: `reports/model_cards/revenue_model.md`. Interest Revenue = Aver
   ~€269/year, near_prime ~€429, subprime ~€411 — not the "subprime is simply worse" story a
   risk-only view would suggest, which is exactly why Customer Profitability (§22, next)
   needs the full revenue/loss/cost picture rather than any single piece alone.
+
+## Funding cost (Phase 4), actual output from `make economics`
+
+Full model card: `reports/model_cards/funding_cost.md`. Funding Cost = Average Balance ×
+Funding Rate / 12. Rate varies by macroeconomic scenario (base 5%, recession 6%,
+high_interest_rate 8%, consumer_stress unchanged at 5%) using config values already
+scaffolded for Phase 6's stress testing; deliberately flat across customer segment (a bank's
+cost of funds is a treasury-level blended rate, not a credit-risk quantity — segment risk is
+already priced via PD/LGD and APR elsewhere).
+
+- **Total portfolio monthly funding cost by scenario**: base €213,178, recession €255,814,
+  high_interest_rate €341,085 — a 60% increase in funding cost under the high-interest-rate
+  scenario relative to base.
+- **Net Interest Margin (base scenario)**: mean €16.67/customer/month, positive for 95.3% of
+  customers — verified that every one of the remaining rows is NIM = 0 exactly (zero balance
+  that month), never negative, since every segment's APR (16.9-27.9%) comfortably exceeds
+  every scenario's funding rate (5-8%).

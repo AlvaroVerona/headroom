@@ -534,6 +534,31 @@ obviously the least profitable segment once volume is accounted for,
 which is exactly the kind of number a "just cap subprime limits" policy
 would get wrong without actually computing it.
 
+## Phase 4 funding cost (§21)
+
+`src/credit_limit_optimizer/models/funding_cost.py`. Funding Cost =
+Average Balance × Funding Rate / 12, same monthly-rate treatment as
+Interest Revenue. Rate varies by macroeconomic scenario using
+`config/settings.yaml`'s already-scaffolded
+`scenarios.*.funding_rate_shift` (base 5%, recession 6%,
+high_interest_rate 8%, consumer_stress 5% unchanged — it stresses
+income/spending/delinquency, not cost of funds). Deliberately does NOT
+vary by customer segment: a bank's cost of funds is a treasury-level
+blended rate, not a credit-risk quantity like LGD — segment risk is
+already priced through PD/LGD (Expected Loss) and APR (Revenue), so
+segment-varying funding cost would double-count it. Full time-varying/
+Monte-Carlo funding-rate paths are explicitly Phase 6's job, not this
+piece's — a scenario here stands in for an alternate macro state, not a
+simulated path.
+
+Also computes Net Interest Margin (Interest Revenue − Funding Cost,
+base scenario) as a sanity cross-check with the revenue model: positive
+for 95.3% of test-cohort customers, and verified (not just assumed) that
+every one of the remaining rows is NIM = 0 exactly from
+`average_balance == 0.0`, never negative — every segment's APR
+(16.9-27.9%) comfortably exceeds every scenario's funding rate (5-8%).
+No bug found while building this piece.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
