@@ -11,6 +11,9 @@ generate-data:
 validate-data:
 	$(PYTHON) -m credit_limit_optimizer.data.validation
 
+quality-report:
+	$(PYTHON) -m credit_limit_optimizer.data.quality_report
+
 eda:
 	$(PYTHON) -m credit_limit_optimizer.analysis.eda
 
@@ -51,7 +54,7 @@ test:
 dashboard:
 	streamlit run app/streamlit_app.py
 
-all: generate-data validate-data eda features train calibrate explain economics optimize-customer optimize-portfolio simulate stress monitor test
+all: generate-data validate-data quality-report eda features train calibrate explain economics optimize-customer optimize-portfolio simulate stress monitor test
 
 clean:
 	rm -rf data/raw/*.csv data/raw/*.parquet data/processed/*.csv data/processed/*.parquet data/quarantine/*.csv models/*.pkl models/*.joblib models/*.json reports/figures/* reports/outputs/*

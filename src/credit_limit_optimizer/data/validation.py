@@ -70,6 +70,26 @@ def build_quarantine_ledger(quarantined: dict[str, pd.DataFrame], issues: pd.Dat
     return ledgers
 
 
+# The only two datasets with a real per-record calendar timestamp --
+# customers.csv and credit_accounts.csv are single-row-per-customer
+# snapshots with no comparable monthly axis, so "quality by month" (§11)
+# is scoped to these, the same way "quality by segment" is scoped to
+# customers.csv only (see compute_quality_score).
+TIMESTAMP_DATASETS = {"transactions", "payments"}
+
+
+def _attach_month(issues: pd.DataFrame, datasets: dict[str, pd.DataFrame]) -> pd.Series:
+    months = pd.Series(index=issues.index, dtype=object)
+    for name in TIMESTAMP_DATASETS:
+        mask = issues["dataset"] == name
+        if not mask.any():
+            continue
+        df = datasets[name]
+        record_to_month = df.set_index("record_id")["timestamp"].str[:7]
+        months.loc[mask] = issues.loc[mask, "record_id"].map(record_to_month).to_numpy()
+    return months
+
+
 def _attach_customer_segment(issues: pd.DataFrame, datasets: dict[str, pd.DataFrame], customers: pd.DataFrame) -> pd.Series:
     # customer_id is not guaranteed unique in the raw data -- duplicate
     # customers are one of the injected quality issues -- so build the
@@ -105,11 +125,20 @@ def compute_quality_score(issues: pd.DataFrame, datasets: dict[str, pd.DataFrame
     overall_score = _score(issues, total_rows)
     by_dataset = {name: _score(issues[issues["dataset"] == name], len(df)) for name, df in datasets.items()}
 
+    # Scoped per-field to the dataset(s) that actually contain that column,
+    # not the full 4-dataset row total -- the same denominator-scope bug
+    # class as by_segment below, just milder here. E.g. "channel" only
+    # exists in transactions.csv (~4.37M rows); dividing its issue count by
+    # all 4 datasets combined (~6.22M rows, including 1.8M payments rows
+    # that don't even have a "channel" column) diluted every field score
+    # toward 100 rather than reflecting that field's own quality. A field
+    # shared by multiple datasets (e.g. "customer_id") correctly sums their
+    # row counts.
     field_issues = issues[issues["field"].notna()]
-    by_field = {
-        field: _score(field_issues[field_issues["field"] == field], total_rows)
-        for field in field_issues["field"].dropna().unique()
-    }
+    by_field = {}
+    for field in field_issues["field"].dropna().unique():
+        field_denom = sum(len(df) for df in datasets.values() if field in df.columns)
+        by_field[field] = _score(field_issues[field_issues["field"] == field], field_denom)
 
     # Scoped to customers.csv's own issues only, not joined across every
     # dataset: a segment's customers can have many thousands of
@@ -128,9 +157,20 @@ def compute_quality_score(issues: pd.DataFrame, datasets: dict[str, pd.DataFrame
         seg_issues = customer_issues[segments == seg]
         by_segment[seg] = _score(seg_issues, int(segment_counts[seg]))
 
+    # Scoped to transactions.csv + payments.csv only -- see TIMESTAMP_DATASETS.
+    ts_issues = issues[issues["dataset"].isin(TIMESTAMP_DATASETS)]
+    months_by_issue = _attach_month(ts_issues, datasets)
+    month_row_counts = pd.concat(
+        [datasets[name]["timestamp"].str[:7] for name in TIMESTAMP_DATASETS]
+    ).value_counts()
+    by_month = {
+        month: _score(ts_issues[months_by_issue == month], int(month_row_counts[month]))
+        for month in sorted(month_row_counts.index)
+    }
+
     return {
         "overall_score": overall_score, "by_dataset": by_dataset,
-        "by_field": by_field, "by_segment": by_segment,
+        "by_field": by_field, "by_segment": by_segment, "by_month": by_month,
     }
 
 

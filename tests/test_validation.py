@@ -124,6 +124,42 @@ def test_quality_score_within_bounds(real_datasets, config):
         assert 0 <= v <= 100
 
 
+def test_by_field_score_scoped_to_owning_datasets_only(real_datasets, config):
+    """Regression test: an earlier version divided every field's issue
+    count by the total row count across all 4 datasets combined, even for
+    a field (e.g. "available_credit") that only exists in credit_accounts.csv
+    -- diluting its score toward 100 with ~6.17M rows from datasets that
+    don't even have that column. A field confined to one dataset must score
+    close to a manual recomputation against that dataset's own row count;
+    a field genuinely shared across all 4 (customer_id) is unaffected."""
+    issues = run_all_checks(real_datasets, config)
+    score = compute_quality_score(issues, real_datasets, config)
+
+    field_issues = issues[issues["field"].notna()]
+    single_dataset_fields = [
+        f for f in field_issues["field"].dropna().unique()
+        if sum(1 for df in real_datasets.values() if f in df.columns) == 1
+    ]
+    assert single_dataset_fields, "expected at least one field confined to a single dataset"
+    for field in single_dataset_fields:
+        owning_dataset = next(name for name, df in real_datasets.items() if field in df.columns)
+        own_denom = len(real_datasets[owning_dataset])
+        weighted_penalty = field_issues.loc[field_issues["field"] == field, "severity"].map(
+            {"CRITICAL": 1.0, "HIGH": 0.6, "MEDIUM": 0.3, "LOW": 0.1, "INFO": 0.02}
+        ).fillna(0.3).sum()
+        expected = round(100 * (1 - min(weighted_penalty / own_denom, 1.0)), 2)
+        assert abs(score["by_field"][field] - expected) < 0.01, (
+            f"{field}: got {score['by_field'][field]}, expected {expected} scoped to {owning_dataset}"
+        )
+
+    # customer_id is a genuine exception: it's a column in all 4 datasets,
+    # so its scoped denominator equals the old unscoped total_rows exactly.
+    total_rows = sum(len(df) for df in real_datasets.values())
+    assert all(field in real_datasets["customers"].columns for field in ["customer_id"])
+    cid_denom = sum(len(df) for df in real_datasets.values() if "customer_id" in df.columns)
+    assert cid_denom == total_rows
+
+
 def test_by_segment_score_is_not_degenerate(real_datasets, config):
     """Regression test: an earlier version summed issues from ALL 4
     datasets into the by_segment numerator while dividing by a
@@ -135,6 +171,24 @@ def test_by_segment_score_is_not_degenerate(real_datasets, config):
     for seg, seg_score in score["by_segment"].items():
         assert seg_score > 50, f"{seg} score suspiciously low: {seg_score}"
         assert abs(seg_score - score["by_dataset"]["customers"]) < 15
+
+
+def test_by_month_covers_full_history_and_is_not_degenerate(real_datasets, config):
+    """§11 requires a quality score broken down by month -- an earlier
+    version of compute_quality_score didn't compute this dimension at all.
+    Scoped to transactions.csv + payments.csv (the only datasets with a
+    real per-record calendar timestamp); should cover all 36 months and
+    stay close to those two datasets' own scores (issues are injected at a
+    uniform rate, not correlated with month, so no month should be a
+    degenerate outlier)."""
+    issues = run_all_checks(real_datasets, config)
+    score = compute_quality_score(issues, real_datasets, config)
+    assert len(score["by_month"]) == 36
+    assert list(score["by_month"]) == sorted(score["by_month"])
+    ts_avg = (score["by_dataset"]["transactions"] + score["by_dataset"]["payments"]) / 2
+    for month, month_score in score["by_month"].items():
+        assert 0 <= month_score <= 100
+        assert abs(month_score - ts_avg) < 5, f"{month} score {month_score} far from transactions/payments average {ts_avg}"
 
 
 def test_full_validation_run_produces_processed_and_quarantine_files():

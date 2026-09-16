@@ -245,6 +245,40 @@ numbers. Highlights that will matter for modeling:
   distress process needs time to reach its stationary distribution) — the
   snapshot months (12/18/24) all fall after this window closes.
 
+## Phase 2 data quality reporting — real bugs found and fixed
+
+`src/credit_limit_optimizer/data/quality_report.py` turns
+`quality_report.json` (written by `validate-data`) into figures + a
+written report (`reports/outputs/quality_report.md`), matching the EDA
+report's format. Building it surfaced two real gaps in `validation.py`'s
+score computation, both fixed there (not just in the report layer):
+
+- **`by_month` was missing entirely.** §11 explicitly requires the score
+  broken down by Dataset, Field, Customer segment, AND Month; only the
+  first three existed. Added `compute_quality_score`'s `by_month`, scoped
+  to `transactions.csv` + `payments.csv` (the only two datasets with a
+  real per-record calendar timestamp — `customers.csv`/
+  `credit_accounts.csv` are single-row-per-customer snapshots with no
+  comparable monthly axis, the same reasoning that scopes `by_segment` to
+  `customers.csv` only). Result: a flat ~98.6-98.7 across all 36 months,
+  as expected since issues are injected at a uniform rate independent of
+  calendar month.
+- **`by_field` divided every field's issue count by the total row count
+  across all 4 datasets combined** (~6.27M), even for a field that only
+  exists in one dataset — e.g. `available_credit` only exists in
+  `credit_accounts.csv` (50,000 rows), but its score was computed against
+  the full 6.27M-row denominator, diluting it from a true ~98.7 to a
+  reported 99.99. The same denominator-scope bug class as the `by_segment`
+  floor-to-0 bug (see Phase 1 validation notes above), just milder here
+  because the diluting datasets are still a comparable order of magnitude
+  rather than orders larger. Fixed by scoping each field's denominator to
+  the sum of row counts of only the dataset(s) that actually contain that
+  column (`customer_id`, which genuinely exists in all 4 datasets, is
+  correctly unaffected — its scoped denominator equals the old unscoped
+  total exactly). Regression-tested in
+  `test_by_field_score_scoped_to_owning_datasets_only` and
+  `test_by_month_covers_full_history_and_is_not_degenerate`.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code

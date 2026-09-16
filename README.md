@@ -22,7 +22,7 @@ loss simulation and stress testing on top.
 - [x] Phase 1 — data validation
 - [x] Phase 2 — feature engineering
 - [x] Phase 2 — EDA
-- [ ] Phase 2 — data quality reporting
+- [x] Phase 2 — data quality reporting
 - [ ] Phase 3 — risk models (Logistic Regression, XGBoost, calibration, SHAP)
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
@@ -133,3 +133,19 @@ every investigation point in spec §12. Selected findings:
   — expected for a ~4.7%-base-rate binary outcome, and the standard justification for
   using XGBoost/WOE-IV rather than linear correlation to size a variable's real
   predictive power (Phase 3).
+
+## Data quality report (Phase 2), actual output from `make quality-report`
+
+Full report with figures: `reports/outputs/quality_report.md` (7 charts in
+`reports/figures/quality/`, sourced entirely from `reports/outputs/quality_report.json`).
+Adds the score-by-month breakdown §11 requires (mean 98.67, essentially flat across all 36
+months — quality issues were injected at a uniform rate independent of calendar month) and
+the RAW → VALIDATED → QUARANTINED lineage funnel.
+
+- **A real bug found and fixed while building this**: `by_field` divided every field's
+  issue count by the total row count across *all 4 datasets combined* (~6.27M rows), even
+  for a field that only exists in one dataset — e.g. `available_credit` only exists in
+  `credit_accounts.csv` (50,000 rows), but scoring it against the full 6.27M-row
+  denominator diluted its score from a true ~98.7 to a reported 99.99. Fixed by scoping
+  each field's denominator to only the dataset(s) that actually contain that column — the
+  same class of bug as the `by_segment` floor-to-0 bug above, milder here but real.
