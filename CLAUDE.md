@@ -206,6 +206,45 @@ recalibrate placeholder thresholds once real data exists).
   design. Left as genuine missing values for the risk model to handle
   (e.g. XGBoost's native NaN handling), not silently imputed here.
 
+## Phase 2 EDA — real findings (not bugs, but worth knowing before Phase 3)
+
+`src/credit_limit_optimizer/analysis/eda.py` covers every point in spec
+§12 against the real 144,003-row feature table + full 36-month raw
+history; see `reports/outputs/eda_report.md` for the full writeup with
+numbers. Highlights that will matter for modeling:
+
+- **`age`, `employment_status`, `employment_tenure_months` and
+  `customer_tenure_months` carry essentially no default signal** (default
+  rate flat within ~1pp across every bucket of each) — the generator's
+  hazard process is driven by segment/utilization/delinquency dynamics,
+  not demographics. Good news for the fairness section (§spec warns
+  against protected characteristics as direct model inputs — this data
+  gives no predictive reason to use `age` anyway); bad news if the
+  portfolio narrative wants to show demographic features "earning their
+  place" in the model.
+- **`essential_spending_ratio`/`discretionary_spending_ratio` are close to
+  three fixed points per row** (~0.45/0.60/0.72, `ESSENTIAL_SHARE_BY_SEGMENT`
+  in `behavior_series.py` fixes the spend *mix* per segment and only
+  varies the total spend *amount*) — a real generator simplification, not
+  a bug. Their correlation with `default_12m` is mostly a mechanical echo
+  of segment membership, not an independent behavioral signal.
+- **Monthly spend never exceeds monthly income in this dataset (0.0% of
+  144,003 rows)** — `monthly_spend` is drawn as `income * spend_ratio *
+  lognormal(...)`, so revolving balances come entirely from customers not
+  paying in full, never from an income shortfall funded by credit within
+  the same month. A real bank's data would show some negative-cash-flow
+  months; worth naming as a modeling simplification if asked.
+- **Linear correlation with `default_12m` tops out around 0.16**
+  (`delinquency_count`) even for variables with dramatic monotonic
+  default-rate spreads in the bar-chart cuts (utilization 0-10% band ~2%
+  default vs. 90-100% band ~21%) — expected for a ~4.7%-base-rate binary
+  outcome, and the standard justification for XGBoost/WOE-IV over linear
+  models picking up on these relationships in Phase 3.
+- **Delinquency ramps up over the first ~12-15 months before reaching a
+  stable per-segment band** (every customer starts at DPD=0; the AR(1)
+  distress process needs time to reach its stationary distribution) — the
+  snapshot months (12/18/24) all fall after this window closes.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code

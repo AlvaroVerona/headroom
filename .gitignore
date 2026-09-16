@@ -28,8 +28,8 @@ models/*.json
 !models/.gitkeep
 
 # Reports
-reports/figures/*.png
-reports/figures/*.html
+reports/figures/**/*.png
+reports/figures/**/*.html
 reports/outputs/*
 reports/model_cards/*.md
 !reports/figures/.gitkeep

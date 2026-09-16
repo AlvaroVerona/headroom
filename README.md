@@ -21,7 +21,8 @@ loss simulation and stress testing on top.
 - [x] Phase 1 — synthetic data generator, tests
 - [x] Phase 1 — data validation
 - [x] Phase 2 — feature engineering
-- [ ] Phase 2 — EDA, data quality reporting
+- [x] Phase 2 — EDA
+- [ ] Phase 2 — data quality reporting
 - [ ] Phase 3 — risk models (Logistic Regression, XGBoost, calibration, SHAP)
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
@@ -112,3 +113,23 @@ make test
   `end_balance_3m_growth`. Fixed by switching to a symmetric relative-change formula,
   bounded to [-2, 2] whenever both values are non-negative — verified on the real 144,003-
   row output.
+
+## EDA (Phase 2), actual output from `make eda`
+
+Full report with figures: `reports/outputs/eda_report.md` (16 charts in
+`reports/figures/eda/`, every number backed by `reports/outputs/eda_stats.json`). Covers
+every investigation point in spec §12. Selected findings:
+
+- **Default rate: 4.69% overall** (142,575 eligible rows), prime 2.74% / near_prime 4.45% /
+  subprime 7.83%, stable across the three time-separated snapshot cohorts.
+- Strong, monotonic default-rate cuts by **utilization** (2% at 0-10% utilization → 21% at
+  90-100%), **debt-to-income**, and **delinquency history** (90+ DPD customers default at
+  ~12% vs. ~2% for a clean history) — the dataset's real risk signal.
+- **Demographics carry almost no default signal**: age, employment status, and tenure are
+  all flat within ~1pp across every bucket — the generator's hazard process is driven by
+  segment/behavior, not demographics (see CLAUDE.md for what this means for the fairness
+  section).
+- Linear correlation with `default_12m` tops out at 0.16 even for the strongest predictors
+  — expected for a ~4.7%-base-rate binary outcome, and the standard justification for
+  using XGBoost/WOE-IV rather than linear correlation to size a variable's real
+  predictive power (Phase 3).
