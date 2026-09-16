@@ -501,6 +501,39 @@ credit_exposure`.
   ordered prime < near_prime < subprime as expected — both checks pass on
   the real numbers, not asserted by construction.
 
+## Phase 4 revenue model (§20)
+
+`src/credit_limit_optimizer/models/revenue_model.py`. Interest Revenue =
+Average Balance × APR / 12, Interchange = Monthly Spend × interchange
+rate, Late Fee = a new config value (`economics.late_fee_amount: 25`,
+charged in any month with `days_past_due > 0`) — §20's optional FX fees
+and other product fees are NOT modeled, since the generated transaction
+data is verified 100% EUR (checked directly against `transactions.csv`)
+with no basis for either.
+
+This is deliberately the exact same formula `labels.py` already used to
+generate `future_interest_revenue`/`future_interchange_revenue` back in
+Phase 1 — not incidental, it means correctness can be checked against
+real generated numbers instead of just asserted.
+`validate_against_labels()` reconstructs each label's target future
+month's `average_balance`/`monthly_spend` directly from the raw monthly
+table, applies this module's formula, and confirms it reproduces
+labels.csv's real values to within €0.01 (labels.csv's own 2-decimal
+rounding) across 147,150 rows. No bug found while building this piece —
+the validation passed on the first working run, which itself confirms
+the formula and the underlying `average_balance`/`monthly_spend` column
+semantics were both understood correctly.
+
+Revenue by segment reveals a real, non-obvious tension worth carrying
+into Customer Profitability (§22, next): subprime generates the highest
+mean revenue (€44.47/month, mostly interest — high APR × high balance)
+but also the highest Expected Loss (€122.45, from the Phase 4 EL piece);
+annualized, subprime nets ~€411/customer/year before funding/operational
+cost vs. prime's ~€269 and near_prime's ~€429 — subprime is not
+obviously the least profitable segment once volume is accounted for,
+which is exactly the kind of number a "just cap subprime limits" policy
+would get wrong without actually computing it.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code

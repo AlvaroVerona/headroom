@@ -75,6 +75,11 @@ economics:
   funding_rate: 0.05
   interchange_rate: 0.012
   operational_cost_per_customer: 25
+  # Flat fee charged in any month a customer has days_past_due > 0 (§20's
+  # optional "Late Fees") -- a typical European card-product late fee;
+  # FX fees are deliberately not modeled since the generated transaction
+  # data is 100% EUR (checked directly), so there's no basis for one.
+  late_fee_amount: 25
   base_lgd: 0.70
   # LGD varies by segment (§19) -- unsecured revolving credit has no
   # collateral, so segment proxies for recovery likelihood via ability/

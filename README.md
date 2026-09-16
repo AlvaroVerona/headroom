@@ -28,7 +28,8 @@ loss simulation and stress testing on top.
 - [x] Phase 3 — probability calibration
 - [x] Phase 3 — SHAP explainability
 - [x] Phase 4 — expected loss model
-- [ ] Phase 4 — revenue, funding cost, customer profitability
+- [x] Phase 4 — revenue model
+- [ ] Phase 4 — funding cost, customer profitability
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
 - [ ] Phase 7 — dashboard, documentation, final audit
@@ -267,3 +268,21 @@ scaled by credit limit) — not a formula dressed up as a model.
   `groupby().mean()` skips NaN by default, masking the problem). Fixed by explicitly
   excluding the affected rows (976 of 48,001 on test) and reporting the exclusion count
   directly, rather than silently dropping or silently producing NaN.
+
+## Revenue model (Phase 4), actual output from `make economics`
+
+Full model card: `reports/model_cards/revenue_model.md`. Interest Revenue = Average Balance
+× APR / 12, Interchange = Monthly Spend × 1.2%, Late Fee = €25 in any month with
+`days_past_due > 0` (FX/other product fees deliberately not modeled — the generated data is
+100% EUR with no basis for either).
+
+- **Formula independently verified against real generated data**: this is the exact same
+  formula Phase 1's label generator used to produce `future_interest_revenue`/
+  `future_interchange_revenue` — reconstructing those labels from the raw monthly table with
+  this module's formula reproduces them to within €0.01 (rounding only) across 147,150 rows.
+- **Mean monthly revenue by segment**: prime €23.47, near_prime €40.70, subprime €44.47 —
+  subprime generates the most revenue (high APR × high balance) but also the highest
+  Expected Loss; annualized net (revenue − EL, before funding/operational cost): prime
+  ~€269/year, near_prime ~€429, subprime ~€411 — not the "subprime is simply worse" story a
+  risk-only view would suggest, which is exactly why Customer Profitability (§22, next)
+  needs the full revenue/loss/cost picture rather than any single piece alone.
