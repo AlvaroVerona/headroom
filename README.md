@@ -25,7 +25,8 @@ loss simulation and stress testing on top.
 - [x] Phase 2 — data quality reporting
 - [x] Phase 3 — Logistic Regression baseline
 - [x] Phase 3 — XGBoost advanced model
-- [ ] Phase 3 — calibration, SHAP
+- [x] Phase 3 — probability calibration
+- [ ] Phase 3 — SHAP explainability
 - [ ] Phase 4 — economics (revenue, funding cost, expected loss, profitability)
 - [ ] Phase 5 — optimization (individual, portfolio, decision policy)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
@@ -202,3 +203,17 @@ pruning needed — trees handle correlated/redundant features natively).
   (~0.73-0.76) instead of collapsing apart.
 - Top gain-based feature importances (`recent_delinquency`, `delinquency_count`,
   `max_days_past_due`, `credit_utilization`) match the EDA's strongest risk drivers.
+
+## Probability calibration (Phase 3), actual output from `make calibrate`
+
+Full report with reliability diagrams: `reports/model_cards/calibration.md`. Fixes exactly
+the miscalibration both risk models' cards flagged.
+
+- **Mean predicted probability drops from ~46-48% to ~5.0-5.5%** (actual base rate ~4.8%)
+  for both models — Brier score improves from ~0.23-0.26 to ~0.043-0.044, and Expected
+  Calibration Error drops from ~0.41-0.44 to ~0.002-0.007 (two orders of magnitude), while
+  **ROC-AUC stays within 0.001** of the uncalibrated model — calibration reshapes the
+  probability scale only, not the ranking.
+- Sigmoid (Platt) won for Logistic Regression, isotonic for XGBoost — chosen per model by
+  Brier score on a held-out half of the validation cohort, disjoint from the half used to
+  fit the calibrators; the test cohort is touched exactly once, for final reporting only.

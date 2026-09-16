@@ -372,6 +372,35 @@ no imputation/scaling, since trees handle both natively.
   (mean predicted probability ~42% vs. ~4.5% actual on train, via
   `scale_pos_weight`) — documented, not a bug, deferred to §17.
 
+## Phase 3 probability calibration (§17)
+
+`src/credit_limit_optimizer/models/calibration.py`. Both models' raw
+probabilities are exactly as miscalibrated as their model cards warned
+(test-cohort mean predicted probability: LR 48.4%, XGBoost 45.6%, vs.
+~4.8% actual) — fitting `CalibratedClassifierCV(FrozenEstimator(model))`
+fixes this dramatically: calibrated mean predicted probability lands at
+5.5% (LR, sigmoid) and 5.0% (XGBoost, isotonic), Brier score drops from
+~0.23-0.26 to ~0.043-0.044, and Expected Calibration Error drops from
+~0.41-0.44 to ~0.002-0.007 (two orders of magnitude), all while ROC-AUC
+stays within 0.001 of the raw model's — confirming calibration only
+reshapes the probability *scale*, not the model's ranking ability, as it
+should. Reliability diagrams (`reports/figures/calibration/*.png`) show
+this visually: the raw curve sits far below the diagonal (systematic
+overconfidence), the calibrated curve hugs it closely.
+
+Split design, so no validation row is ever used for two purposes: the
+validation cohort is split in half into `calib_fit` (fits both sigmoid
+and isotonic calibrators) and `calib_select` (scores them by Brier score
+to choose the better one per model, purely — sigmoid won for LR, isotonic
+for XGBoost, both by a razor-thin margin at the calib_select stage even
+though the margin widens somewhat on test). The test cohort is touched
+exactly once, for the final numbers reported in the model card — no
+model-selection decision is based on it. No bug found while building
+this piece; it worked essentially as expected on the first working run.
+Uses `sklearn.frozen.FrozenEstimator` (sklearn 1.9's supported mechanism
+for calibrating an already-fitted estimator) rather than the older
+`CalibratedClassifierCV(cv="prefit")` pattern.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
