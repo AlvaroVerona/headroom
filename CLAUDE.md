@@ -50,10 +50,17 @@ recalibrate placeholder thresholds once real data exists).
   loss): `portfolio_expected_loss_limit: 3,000,000` turns out to already
   be a reasonable estimate — the real, computed test-cohort Expected
   Loss extrapolates to ~€2.93M across the full ~50,000-customer
-  portfolio (see `expected_loss.py`'s model card). Left unchanged;
-  `portfolio_exposure_limit` (150,000,000) still needs the same check
-  once Phase 5's optimization runs produce a real portfolio exposure
-  number to compare against.
+  portfolio (see `expected_loss.py`'s model card). Left unchanged.
+  Update (Phase 5, portfolio optimization): `portfolio_exposure_limit`
+  (150,000,000) checked against the real number — funding every
+  individually-approved customer at their individually-optimal limit
+  would need €320.5M, ~2.14x the configured cap. Left unchanged
+  deliberately, not recalibrated up: unlike the EL limit (which just
+  happened to already match reality), a exposure cap that's ALWAYS
+  slack would make the portfolio optimization piece pointless — the
+  point of §25 is to demonstrate a genuine, binding resource allocation
+  trade-off, and €150M creates exactly that (see `portfolio_optimizer.py`'s
+  model card for the resulting 17,205-of-38,879-customer allocation).
 - **The calibrated XGBoost classifier is "the" production PD source**
   for Expected Loss (Phase 4) and everything downstream (optimization,
   simulation) — not the LR baseline. It modestly but genuinely
@@ -658,6 +665,50 @@ is positive for every segment (prime €4.21, near_prime €49.68, subprime
   the grid range, not a model judgment that their limit should shrink.
   Regression-tested in `test_select_optimal_breaks_ties_toward_current_limit`
   and `test_decrease_recommendations_mostly_explained_by_grid_cap`.
+
+## Phase 5 portfolio optimization (§25) — closes Phase 5
+
+`src/credit_limit_optimizer/optimization/portfolio_optimizer.py`, OR-Tools
+CBC MIP. Two-stage design: stage 1 (`customer_optimizer.py`) already
+picked each customer's individually-optimal (limit, profit, EAD, PD)
+tuple under customer-level constraints; stage 2 is a portfolio-level 0/1
+knapsack — one binary variable per already-approved customer (not per
+customer × candidate), deciding which to actually FUND so the aggregate
+exposure/loss/risk-concentration budget holds while maximizing total
+profit. ~38,900 variables, 4 constraints, solves to OPTIMAL in ~1 second
+— a deliberate simplification (loses the ability to shrink a customer's
+limit to fit them in under budget; it's fund-at-optimal-or-not) that
+keeps the problem tractable and mirrors real risk-based portfolio triage
+(score individually, then allocate scarce budget).
+
+The two ratio constraints (average PD, high-risk exposure %) both have a
+denominator that depends on the decision variables — not linear as
+written, but since PD and limit are fixed per customer from stage 1,
+multiplying through gives an exactly equivalent linear form (see module
+docstring), not an approximation — verified directly in
+`test_average_pd_linearization_matches_true_ratio` and
+`test_high_risk_exposure_linearization_matches_true_ratio` (solve with a
+tight limit, then recompute the TRUE, non-linearized ratio on the
+selected set and check it still holds).
+
+Real, non-trivial result: funding every individually-approved customer
+would need €320.5M exposure and 18.4% high-risk concentration, both over
+the €150M / 15% limits — Expected Loss and average PD both have slack.
+MIP-optimal funds 17,205 of 38,879 (44.3%), hitting exposure and
+high-risk exposure exactly at their limits, €8.19M/year total profit —
+7.77% better than a profit-per-exposure greedy heuristic (both solve the
+same problem; the MIP's advantage is jointly respecting all 4 constraints
+at once rather than a single ratio blind to which one actually binds).
+**Funding rate is NOT "safest first"**: prime (safest, 20% funded) loses
+out to near_prime (72% funded) because exposure is the binding
+constraint and prime's profit-per-euro-of-exposure (€0.022) is the
+segment's worst — prime customers carry large individually-optimal
+limits for comparatively modest absolute profit. Subprime has the BEST
+profit-per-euro (€0.057) but is capped by the also-binding high-risk
+exposure constraint, leaving near_prime with the most headroom under
+both constraints simultaneously. No bug found while building this
+piece — the MIP solved correctly and the result made sense once the
+segment-level profit-efficiency numbers were checked directly.
 
 ## Engineering principles
 

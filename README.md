@@ -32,7 +32,7 @@ loss simulation and stress testing on top.
 - [x] Phase 4 — funding cost
 - [x] Phase 4 — customer profitability
 - [x] Phase 5 — individual credit limit optimization
-- [ ] Phase 5 — portfolio optimization, decision policy
+- [x] Phase 5 — portfolio optimization (OR-Tools)
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
 - [ ] Phase 7 — dashboard, documentation, final audit
 
@@ -358,3 +358,29 @@ constraints genuinely couple every customer's limit to everyone else's.
   instead of accepting the arbitrary first-occurrence default — after the fix, 83% of the
   remaining decreases are explained by a real, different cause: the customer's actual current
   limit already exceeds the candidate grid's own maximum.
+
+## Portfolio credit limit optimization (Phase 5), actual output from `make optimize-portfolio` — closes Phase 5
+
+Full model card: `reports/model_cards/portfolio_optimization.md`. OR-Tools CBC MIP:
+maximize total Expected Profit across individually-approved customers, subject to portfolio
+exposure/loss/average-PD/high-risk-concentration constraints — one binary variable per
+customer (fund at their stage-1-optimal limit, or not), ~38,900 variables, solved to
+**OPTIMAL in ~1 second**.
+
+- **A genuinely binding problem, not a rubber stamp**: funding every individually-approved
+  customer would need €320.5M exposure and 18.4% high-risk concentration, both over the
+  €150M / 15% portfolio limits — Expected Loss and average PD both have slack, so exposure
+  and risk-concentration are the real trade-offs the solver has to resolve.
+- **MIP-optimal funds 17,205 of 38,879 customers (44.3%)**, hitting both binding constraints
+  exactly at their limits, for €8.19M/year total profit — **7.77% better than a
+  profit-per-exposure greedy heuristic** (€590K/year), because the MIP jointly respects all
+  4 constraints at once instead of a single ratio blind to which one actually binds.
+- **Funding rate is NOT "safest first"**: prime (safest segment) gets funded the LEAST
+  (20%, vs. 72% for near_prime) — exposure is the binding constraint, and prime's
+  profit-per-euro-of-exposure (€0.022) is the segment's worst, since prime customers carry
+  large individually-optimal limits for comparatively modest absolute profit. Subprime has
+  the BEST profit-per-euro (€0.057) but is capped by the also-binding high-risk exposure
+  constraint, leaving near_prime with the most headroom under both constraints at once.
+- No bug found while building this piece — verified the two ratio constraints (average PD,
+  high-risk exposure %) actually linearize exactly (not an approximation) by recomputing the
+  TRUE ratio on the solved solution and checking it still holds.
