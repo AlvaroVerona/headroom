@@ -799,6 +799,37 @@ invented.
   card so a future PSI alert on a cumulative feature here isn't misread as the population
   instability PSI monitoring exists to catch.
 
+## Phase 7 dashboard, documentation, final audit -- closes Phase 7
+
+`app/` -- an 8-page Streamlit dashboard (Executive Overview + Data Quality, Risk
+Models, Economics, Optimization, Stress Testing, Monte Carlo Risk, Monitoring),
+mirroring `../breach-point`'s own dashboard conventions: `app/__init__.py` (required
+for `app.pages.*` to import `from app.components...` -- without it,
+`streamlit run app/app.py` raises `ModuleNotFoundError`), `app/components/data_loader.py`
+(`st.cache_data`-wrapped readers of `reports/outputs/*.json` -- never recomputes the
+pipeline live, since Phase 3's training and Phase 6's Monte Carlo alone would make
+the UI unusable per-click), `app/components/style.py` (fixed per-segment colors,
+status/severity badges). Tested headlessly with Streamlit's `AppTest` harness
+(`tests/test_dashboard.py`, 12 tests, ~1.5s for all 8 pages) rather than a live
+browser under pytest -- and additionally walked through live in a real browser
+(`streamlit run app/app.py`) to confirm actual rendering, since AppTest alone only
+proves "didn't crash," not "looks right."
+
+**Documentation**: README.md rewritten from the phase-by-phase build log it was
+during Phases 1-6 into a polished, portfolio-facing document (results table,
+condensed methodology, dashboard description, verification) -- this file (CLAUDE.md)
+keeps the detailed, dated engineering log with every decision and bug.
+
+**Final audit**: full `make all` (data generation through drift monitoring) re-run
+end to end, seed=42 -- every headline figure reproduced exactly (Data Quality 98.64,
+17,205 funded customers, €8,186,017/year MIP profit, 87.04% approval rate, base VaR
+99% €2,241,452, `any_significant_drift=True`), confirming determinism holds across
+the full pipeline, not just within individual phases. **227/227 tests passed**
+(215 pipeline + 12 dashboard). If a future change to any upstream phase shifts these
+numbers, that's a real signal — check whether it's an intentional code change
+(update the README) or a regression (fix it), never just overwrite the README to
+match without understanding why it moved.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
