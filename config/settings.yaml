@@ -122,6 +122,23 @@ optimization:
 
 simulation:
   n_simulations: 10000
+  var_confidence_levels: [0.95, 0.99]
+  # Single-factor (Vasicek/ASRF) asset correlation for the Monte Carlo
+  # default simulation (Phase 6, §26-28). 0.04 is Basel II/III's own flat
+  # correlation for Qualifying Revolving Retail Exposures (credit cards) --
+  # not a fitted/invented number, the actual regulatory constant for this
+  # exact product type (unsecured revolving retail), lower than mortgages
+  # or corporate exposures because retail borrowers' defaults are driven
+  # far more by idiosyncratic (job loss, illness) than systemic factors.
+  asset_correlation: 0.04
+
+monitoring:
+  # Population Stability Index thresholds (industry-standard bands, not
+  # invented): < 0.10 no significant shift, 0.10-0.25 moderate (investigate),
+  # > 0.25 significant (model/features likely need retraining).
+  psi_warning_threshold: 0.10
+  psi_critical_threshold: 0.25
+  n_buckets: 10
 
 scenarios:
   base: {}

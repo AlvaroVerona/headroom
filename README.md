@@ -33,7 +33,9 @@ loss simulation and stress testing on top.
 - [x] Phase 4 — customer profitability
 - [x] Phase 5 — individual credit limit optimization
 - [x] Phase 5 — portfolio optimization (OR-Tools)
-- [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
+- [x] Phase 6 — stress testing / scenarios
+- [x] Phase 6 — Monte Carlo loss simulation / VaR / CVaR
+- [x] Phase 6 — drift monitoring (PSI)
 - [ ] Phase 7 — dashboard, documentation, final audit
 
 ## Quickstart
@@ -384,3 +386,62 @@ customer (fund at their stage-1-optimal limit, or not), ~38,900 variables, solve
 - No bug found while building this piece — verified the two ratio constraints (average PD,
   high-risk exposure %) actually linearize exactly (not an approximation) by recomputing the
   TRUE ratio on the solved solution and checking it still holds.
+
+## Stress testing / scenarios (Phase 6), actual output from `make stress`
+
+Full model card: `reports/model_cards/scenarios.md`. Re-evaluates the FUNDED portfolio
+(Phase 5's 17,205-customer MIP solution) under each macro scenario in
+`config/settings.yaml`. Feature-level shocks (income, spending, income volatility,
+delinquency, cash buffer) are re-scored through the existing calibrated XGBoost PD model;
+`default_multiplier`/`funding_rate_shift`/`apr_shift` are direct overlays on the downstream
+economics.
+
+| Scenario | Mean PD | Total Expected Loss | EL vs. base | Total Expected Profit |
+|---|---|---|---|---|
+| base | 3.56% | €939,348 | 1.00x | €8,186,017 |
+| recession | 5.85% | €1,547,545 | 1.65x | €6,918,281 |
+| high_interest_rate | 3.56% | €939,348 | 1.00x | €8,186,017 |
+| consumer_stress | 3.62% | €959,011 | 1.02x | €8,166,353 |
+
+- **`high_interest_rate`'s net profit exactly matches base, to the cent** — `funding_rate_shift`
+  and `apr_shift` are both +3pp, and since interest revenue and funding cost scale the same
+  `balance` figure, the two shifts cancel exactly in net profit even though gross revenue and
+  gross cost both moved by real, non-trivial amounts (+€1.03M each). A genuine finding about
+  what happens when a bank's own repricing tracks its cost of funds one-for-one, not a bug.
+- Recession is the worst scenario on every axis, as expected: default_multiplier 1.6 plus
+  income/spending feature shocks push mean PD up 64% and Expected Loss up 65%.
+
+## Monte Carlo loss simulation / VaR / CVaR (Phase 6), actual output from `make simulate`
+
+Full model card: `reports/model_cards/monte_carlo.md`. Single-factor (Vasicek/ASRF) Gaussian
+copula default simulation, 10,000 draws, asset correlation 0.04 (Basel's own flat correlation
+for Qualifying Revolving Retail Exposures — credit cards — not fit to this data).
+
+| Scenario | Analytical EL | MC mean loss | VaR 99% | CVaR 99% | Economic Capital (99%) |
+|---|---|---|---|---|---|
+| base | €939,348 | €943,821 | €2,241,452 | €2,557,487 | €1,302,104 |
+| recession | €1,547,545 | €1,554,468 | €3,375,848 | €3,797,512 | €1,828,303 |
+
+- **Sanity check passed**: MC mean loss lands within 0.5% of the analytical `PD × LGD × EAD`
+  sum on every scenario — the simulation is unbiased, as it must be (both describe the same
+  expectation; the simulation adds the TAIL shape analytical EL can't).
+- VaR 99% is ~2.4x Expected Loss even at 4% asset correlation — correlated defaults create a
+  materially fatter tail than a plain binomial loss count would, the entire reason to run a
+  copula simulation instead of just scaling the mean.
+
+## Drift monitoring / PSI (Phase 6), actual output from `make monitor`
+
+Full model card: `reports/model_cards/monitoring.md`. Population Stability Index across the
+three real, time-separated snapshot vintages (train=month 12, validation=month 18,
+test=month 24) — no synthetic "production" data exists past month 24, so adjacent real
+vintages stand in for successive monitoring periods.
+
+- **PD score is STABLE across every period** (PSI 0.01–0.07, well under the 0.10 warning
+  band) — the calibrated model's own output distribution hasn't meaningfully shifted.
+- **One real, explained exception**: `delinquency_count` (a top-6 SHAP feature) shows
+  SIGNIFICANT PSI (0.35, train vs. test) — but this is a vintage-design artifact, not true
+  population drift: `train`/`validation`/`test` are the SAME 50,000 customers observed at
+  later points in their own history, so a LIFETIME/cumulative counter mechanically
+  accumulates more events by a later snapshot. `days_past_due` (point-in-time) and
+  `recent_delinquency` (recent-window) both stay STABLE, exactly the pattern that
+  explanation predicts — see the model card for the full case.

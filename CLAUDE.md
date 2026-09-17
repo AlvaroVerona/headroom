@@ -710,6 +710,95 @@ both constraints simultaneously. No bug found while building this
 piece — the MIP solved correctly and the result made sense once the
 segment-level profit-efficiency numbers were checked directly.
 
+## Phase 6 stress testing / scenarios (§26-27)
+
+`src/credit_limit_optimizer/simulation/scenarios.py`. Re-evaluates the FUNDED portfolio
+(Phase 5's MIP solution, 17,205 customers) -- not the raw approved-but-unfunded pool -- under
+each macro scenario already scaffolded in `config/settings.yaml`'s `scenarios` block.
+
+**Two shock mechanisms, chosen per shock's own nature, not one blanket approach**: (1)
+feature-level shocks (`income_growth_shift`, `spending_shift`, `income_volatility_multiplier`,
+`delinquency_multiplier`, `cash_balance_shift`) perturb genuine PD-model input features and
+are re-scored through the ALREADY-FITTED, calibrated XGBoost classifier -- no retraining,
+which would be a different kind of leakage (fitting to a hypothetical future); this is the
+same "shock inputs, re-score the model" design the prior session verified before starting
+this piece, confirming `income`/`spend`/`income_volatility` all carry real PD signal (unlike
+`credit_exposure`, already known to have ~0 importance per `profitability.py`). (2) Direct
+macro overlays on the downstream economics formula: `default_multiplier` (a flat PD overlay
+-- the standard "management overlay" every real stress-testing framework layers on top of a
+model score), `funding_rate_shift` (reuses `funding_cost.py`'s own
+`funding_rate_for_scenario`), `apr_shift` (added to each customer's own APR).
+
+**Deliberately NOT shocked**: `average_balance` (no causal balance-response-to-macro-shock
+model exists, the same reasoning CLAUDE.md already gives for why `credit_exposure` can't be
+used to shock EAD) and LGD (no scenario key for it in the spec's own scaffolded config --
+same "don't invent what the spec didn't ask for" principle as `funding_cost.py`'s flat
+funding rate).
+
+**A real, non-obvious finding, not a bug**: `high_interest_rate`'s total Expected Profit is
+IDENTICAL to base to the cent (€8,186,016.98 both times). It has no feature-level shock at
+all (PD unchanged from base, verified), only `funding_rate_shift: +0.03` and `apr_shift:
++0.03` -- and because `interest_revenue = balance × apr` and `funding_cost = balance ×
+funding_rate` scale the exact same `balance` figure, two EQUAL-MAGNITUDE shifts cancel
+exactly in net profit even though gross revenue AND gross cost both moved by
++€1,028,505 each. Illustrates a real risk: if a bank's own repricing tracks its cost of
+funds one-for-one, a rate-rise scenario looks like a bottom-line non-event even though NIM
+composition changed substantially -- invisible from a single "total profit" number without
+the revenue/cost breakdown. No bug found otherwise; recession (default_multiplier 1.6 +
+income/spend shocks) is the worst scenario on every axis as expected (mean PD +64%,
+Expected Loss +65% vs. base).
+
+## Phase 6 Monte Carlo loss simulation / VaR / CVaR (§28)
+
+`src/credit_limit_optimizer/simulation/monte_carlo.py`. Single-factor (Vasicek/ASRF)
+Gaussian copula default simulation over the same funded book, one run per scenario (not just
+base) so stress scenarios' TAIL risk -- not just their mean EL, already in `scenarios.py` --
+is visible too. `asset_correlation` (`simulation.asset_correlation`, 0.04) is Basel's own
+flat correlation for Qualifying Revolving Retail Exposures (credit cards) -- the actual
+regulatory constant for this exact product type, not fit to this data or invented.
+
+**Sanity check, not just computed**: Monte Carlo mean loss lands within 0.5% of the
+analytical `PD × LGD × EAD` sum (already computed in `scenarios.py`) on every scenario --
+both describe the same expectation, so a real divergence here would mean a bug in either the
+copula simulation or the LGD-recovery step (`LGD = expected_loss / (PD × balance)`, chosen
+deliberately over a second independent LGD lookup so analytical/MC consistency can never be
+an artifact of two sources of truth drifting apart). VaR 99% (€2.24M base) is ~2.4x Expected
+Loss even at a modest 4% asset correlation -- correlated defaults genuinely fatten the tail
+past what a plain binomial loss count would show, the whole reason to simulate rather than
+just scale the mean. No bug found while building this piece.
+
+## Phase 6 drift monitoring / PSI (§29) -- closes Phase 6
+
+`src/credit_limit_optimizer/monitoring/drift.py`. No true "production" data exists past the
+test cohort's month-24 snapshot, so monitoring compares each ADJACENT pair of the three real,
+genuinely time-separated snapshot vintages (train=month 12, validation=month 18, test=month
+24) already built for time-based validation -- a genuine "how much did the real population
+move in the ~6 real months between two actual snapshots" measurement, not a placeholder.
+Monitored features are the calibrated XGBoost model's own top-6 SHAP global-importance
+features (`reports/outputs/shap_report.json`, Phase 3's `explain.py`) -- reusing the model's
+own data-driven ranking rather than hand-picking, the same principle as `risk_model.py`'s
+correlation pruning. PSI thresholds (0.10/0.25) are the standard industry bands, not
+invented.
+
+- **PD score is STABLE across every period** (PSI 0.01-0.07, well under 0.10) -- the
+  calibrated model's own output hasn't meaningfully shifted.
+- **A real, fully-explained exception, not a bug**: `delinquency_count` shows SIGNIFICANT
+  PSI (0.345, train vs. test) -- mean value climbs 0.99 -> 1.54 -> 2.10 across the three
+  vintages. Root cause: `train`/`validation`/`test` are the SAME 50,000 customers observed
+  at increasingly later points in their OWN 36-month history (not three independent,
+  non-overlapping populations), so a LIFETIME/cumulative counter mechanically has more
+  elapsed time to accumulate delinquency events at a later snapshot for the exact same
+  customers -- consistent with Phase 2's EDA finding that "delinquency ramps up over the
+  first ~12-15 months before reaching a stable per-segment band." Confirmed by checking the
+  two other delinquency-family monitored features: `days_past_due` (point-in-time, not
+  cumulative) and `recent_delinquency` (recent-window indicator, not cumulative) both stay
+  STABLE (PSI ~0.0005 and 0.0000) across every period -- exactly the pattern this
+  explanation predicts, and evidence against an alternative "the population is genuinely
+  destabilizing" reading. A real production deployment (genuinely new customers each
+  period, no vintage reuse) would not have this artifact; flagged prominently in the model
+  card so a future PSI alert on a cumulative feature here isn't misread as the population
+  instability PSI monitoring exists to catch.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code
