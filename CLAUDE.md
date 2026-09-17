@@ -611,6 +611,54 @@ this piece introduced.
   balance, then picking the MEDIAN balance within that pool — a
   representative, not cherry-picked or degenerate, illustrative example.
 
+## Phase 5 individual credit limit optimization (§23-24) — real bug found and fixed
+
+`src/credit_limit_optimizer/optimization/customer_optimizer.py`. For
+each customer, evaluate the full candidate grid (reusing
+`profitability.py`'s machinery), apply four constraints
+(`config/settings.yaml`'s `risk.*`: income, risk/PD, utilization, debt/
+DSR), and select the feasible candidate maximizing Expected Profit; no
+feasible candidate → decline, not "approve at the smallest grid value."
+DSR reuses the generator's own scheduled-minimum-payment formula
+(`max(0.03 × balance, 25 if balance > 0 else 0) / monthly_income`, from
+`behavior_series.py`) applied to `balance(L)`, not a new assumption. This
+is deliberately NOT an OR-Tools problem: individual optimization is an
+independent per-customer argmax over ~20 candidates, no coupling between
+customers, so a full solver would be pure overhead — OR-Tools is for the
+NEXT piece, portfolio optimization, where the exposure/loss constraints
+genuinely couple every customer's limit to everyone else's.
+
+Result on the test cohort: **87.0% approved**, decline driven almost
+entirely by the risk constraint (5,791 of 5,798 declines — PD is held
+constant across candidates per Phase 4's documented simplification, so
+`PD <= max_pd` is either satisfiable for every candidate or none, no
+limit-specific trade-off possible). Mean profit uplift vs. current limits
+is positive for every segment (prime €4.21, near_prime €49.68, subprime
+€104.46/year).
+
+- **`groupby().idxmax()` silently picked the SMALLEST candidate for any
+  customer with a flat (tied) profit curve across the whole grid** — most
+  commonly a zero-`average_balance` customer, whose profit doesn't depend
+  on the limit at all in this model (interest revenue, EL, and funding
+  cost are all balance-driven, hence all zero). `idxmax()` returns the
+  first-occurring maximum, which for a flat series is just "whichever
+  candidate sorts first" — i.e. €500, producing a real, misleading "cut
+  this customer's credit line" recommendation with zero economic basis
+  behind it. Found by inspecting the limit-change distribution chart: an
+  unexplained left-tail spike down to -€12,500 that had no business
+  reading. Verified the scope before fixing: ~40% of ALL "decrease"
+  recommendations were this exact artifact. Fixed with
+  `_select_optimal`: among each customer's candidates within a small
+  tolerance of the max profit, break the tie toward whichever is CLOSEST
+  to the customer's current limit (least-disruption principle) instead
+  of accepting pandas' arbitrary first-occurrence default. After the fix,
+  the remaining "decrease" recommendations are 83% explained by a
+  genuinely different, real cause: the customer's actual current limit
+  already exceeds the candidate grid's own maximum (€10,000) — capped by
+  the grid range, not a model judgment that their limit should shrink.
+  Regression-tested in `test_select_optimal_breaks_ties_toward_current_limit`
+  and `test_decrease_recommendations_mostly_explained_by_grid_cap`.
+
 ## Engineering principles
 
 Business logic lives in `src/`, never in notebooks. All stochastic code

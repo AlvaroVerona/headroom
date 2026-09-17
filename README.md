@@ -31,7 +31,8 @@ loss simulation and stress testing on top.
 - [x] Phase 4 — revenue model
 - [x] Phase 4 — funding cost
 - [x] Phase 4 — customer profitability
-- [ ] Phase 5 — optimization (individual, portfolio, decision policy)
+- [x] Phase 5 — individual credit limit optimization
+- [ ] Phase 5 — portfolio optimization, decision policy
 - [ ] Phase 6 — risk management (scenarios, Monte Carlo, VaR/CVaR, monitoring)
 - [ ] Phase 7 — dashboard, documentation, final audit
 
@@ -331,3 +332,29 @@ segment.
   "revenue vs. EL" preview, which had already annualized correctly and found every segment
   profitable — the disagreement between the two pieces surfaced the bug. Fixed by putting
   every term on a consistent annual basis.
+
+## Individual credit limit optimization (Phase 5), actual output from `make optimize-customer`
+
+Full model card: `reports/model_cards/customer_optimization.md`. For each customer,
+evaluate every candidate limit and select the feasible one maximizing Expected Profit,
+subject to income/risk/utilization/debt constraints (§24); no feasible candidate → decline,
+not "approve at the smallest grid value." This is an independent per-customer argmax, not an
+OR-Tools problem — that's next, for portfolio optimization, where the exposure/loss
+constraints genuinely couple every customer's limit to everyone else's.
+
+- **87.0% approved**, decline driven almost entirely by the risk constraint (5,791 of 5,798
+  declines) — matches an independent sanity check (~13% of the test cohort has PD above the
+  8% threshold) done before building the optimizer.
+- **Mean profit uplift vs. current limits is positive for every segment**: prime €4.21,
+  near_prime €49.68, subprime €104.46/year; €1.69M/year total across the approved test
+  cohort.
+- **A real bug found and fixed while building this**: for any customer whose Expected Profit
+  doesn't actually depend on the candidate limit (most commonly a zero-balance customer, since
+  interest revenue/EL/funding cost are all balance-driven), `pandas.groupby().idxmax()`
+  silently picked the SMALLEST candidate — a real "cut this customer's credit line"
+  recommendation with zero economic basis, found via an unexplained left-tail spike in the
+  limit-change chart. ~40% of ALL "decrease" recommendations were this exact artifact. Fixed
+  by breaking ties toward whichever candidate is closest to the customer's current limit
+  instead of accepting the arbitrary first-occurrence default — after the fix, 83% of the
+  remaining decreases are explained by a real, different cause: the customer's actual current
+  limit already exceeds the candidate grid's own maximum.
