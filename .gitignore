@@ -41,5 +41,9 @@ reports/model_cards/*.md
 .vscode/
 .idea/
 
+# Obsidian's local vault state (window layout, plugin list) — not portable,
+# not meant to be shared; the notes themselves (notes/*.md) are tracked normally.
+.obsidian/
+
 # Jupyter
 .ipynb_checkpoints/
