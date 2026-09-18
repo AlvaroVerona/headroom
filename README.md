@@ -154,8 +154,15 @@ cumulative counter mechanically accumulates more events — confirmed by
 than recomputing the pipeline per click — Phase 3's model training and Phase 6's
 Monte Carlo simulation alone would make the UI unusable otherwise.
 
-Executive Overview · Data Quality · Risk Models (LR/XGBoost/calibration/SHAP) ·
-Economics · Optimization · Stress Testing · Monte Carlo Risk · Monitoring.
+<p align="center">
+  <img src="docs/screenshots/executive_overview.jpg" width="32%" alt="Executive Overview" />
+  <img src="docs/screenshots/monte_carlo_risk.jpg" width="32%" alt="Monte Carlo VaR/CVaR sanity-check table" />
+  <img src="docs/screenshots/optimization.jpg" width="32%" alt="Individual + portfolio optimization" />
+</p>
+
+Executive Overview (shown above) · Data Quality · Risk Models (LR/XGBoost/
+calibration/SHAP) · Economics · Optimization (shown above) · Stress Testing ·
+Monte Carlo Risk (shown above) · Monitoring.
 
 ## Verification
 
