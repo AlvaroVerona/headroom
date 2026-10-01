@@ -6,7 +6,7 @@
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-**Try it in 2 minutes:** `pip install -e .` then `make dashboard` — sample results
+**[Live demo](https://headroom-credit-risk.streamlit.app/)** · or run it locally in 2 minutes: `pip install -e .` then `make dashboard` — sample results
 from a full run are included in `reports/outputs/`, so no pipeline run is needed.
 
 An end-to-end credit-risk decision platform: it validates messy customer/transaction
