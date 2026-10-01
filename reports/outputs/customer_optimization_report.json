@@ -1,0 +1,24 @@
+{
+  "n_customers": 44670,
+  "n_excluded_missing_inputs": 3331,
+  "approval_rate": 0.8703604208641146,
+  "n_approved": 38879,
+  "n_declined": 5791,
+  "decline_reason_counts": {
+    "risk": 5791,
+    "utilization": 7
+  },
+  "mean_profit_uplift": 43.52858852694674,
+  "total_profit_uplift": 1692347.9933391623,
+  "uplift_by_segment": {
+    "near_prime": 49.67694949163787,
+    "prime": 4.208145379708328,
+    "subprime": 104.46309161470647
+  },
+  "fraction_limit_increased": 0.8783147714704597,
+  "fraction_limit_decreased": 0.10962216106381337,
+  "fraction_limit_unchanged": 0.012063067465726999,
+  "n_decreased": 4262,
+  "fraction_decrease_from_grid_cap": 0.8343500703894885,
+  "candidate_grid_max": 10000
+}

@@ -180,7 +180,7 @@ def write_markdown_report(report: dict, month_stats: dict) -> None:
         "Scoped to `customers.csv`'s own issues only — a segment's customers can have tens "
         "of thousands of associated transaction/payment rows each, so folding those into a "
         "customer-row-denominated score is a scale mismatch that floored every segment to "
-        "0.0 in an earlier version (see CLAUDE.md). "
+        "0.0 in an earlier version (see docs/ENGINEERING_LOG.md). "
         + ", ".join(f"{k}: {v:.1f}" for k, v in report["by_segment"].items()) + ".",
         "![score by segment](../figures/quality/02_score_by_segment.png)",
         "",

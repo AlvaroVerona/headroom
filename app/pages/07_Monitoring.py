@@ -82,5 +82,5 @@ if delinquency.get("severity") == "SIGNIFICANT":
         "train/validation/test are the SAME customers observed at later points in their own "
         "history -- a cumulative counter mechanically rises. `days_past_due` (point-in-time) "
         "and `recent_delinquency` (recent-window) both stay stable, confirming this. See "
-        "CLAUDE.md for the full explanation."
+        "docs/ENGINEERING_LOG.md for the full explanation."
     )

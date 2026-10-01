@@ -14,6 +14,6 @@
 > - `models/profitability.py`'s `compute_pd`, `optimization/customer_optimizer.py`, `simulation/scenarios.py`'s `compute_pd` — every downstream PD read is XGBoost-only
 > - `models/risk_model.py` (LR) and `models/calibration.py`/`models/explain.py` (both models) exist purely for the comparison and the interpretability requirement
 
-See CLAUDE.md's Phase 3/4 entries for the exact metrics and the early-stopping-metric bug that made the first XGBoost attempt score *worse* than LR before this decision was even reachable.
+See docs/ENGINEERING_LOG.md's Phase 3/4 entries for the exact metrics and the early-stopping-metric bug that made the first XGBoost attempt score *worse* than LR before this decision was even reachable.
 
 See also: [[Home]]

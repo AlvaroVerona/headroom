@@ -1,0 +1,858 @@
+{
+  "generated_at": "2026-10-01T14:39:15.382478+00:00",
+  "n_rows": 144003,
+  "income_distribution": {
+    "overall": {
+      "count": 144003,
+      "mean": 2970.6834311090743,
+      "median": 2725.94,
+      "std": 1655.2799885669026,
+      "p10": 1052.1580000000001,
+      "p25": 1783.7649999999999,
+      "p75": 3858.525,
+      "p90": 5120.334,
+      "min": 267.29,
+      "max": 22670.56,
+      "skew": 1.140160232641241
+    },
+    "by_segment": {
+      "prime": {
+        "count": 50388,
+        "mean": 3701.839133722315,
+        "median": 3508.93,
+        "std": 1890.3533789532069,
+        "p10": 1348.982,
+        "p25": 2385.8875,
+        "p75": 4761.9975,
+        "p90": 6145.836000000002,
+        "min": 319.52,
+        "max": 22670.56,
+        "skew": 0.9234820336343816
+      },
+      "near_prime": {
+        "count": 57624,
+        "mean": 2853.664428883798,
+        "median": 2706.94,
+        "std": 1430.4126727125927,
+        "p10": 1075.0529999999999,
+        "p25": 1861.1950000000002,
+        "p75": 3665.07,
+        "p90": 4704.024000000001,
+        "min": 297.88,
+        "max": 12880.59,
+        "skew": 0.8429194814371933
+      },
+      "subprime": {
+        "count": 35991,
+        "mean": 2134.408513517268,
+        "median": 2003.37,
+        "std": 1101.9962393457586,
+        "p10": 792.5,
+        "p25": 1367.44,
+        "p75": 2747.535,
+        "p90": 3542.29,
+        "min": 267.29,
+        "max": 10270.22,
+        "skew": 0.9492241433223366
+      }
+    }
+  },
+  "credit_limit_distribution": {
+    "overall": {
+      "count": 141075,
+      "mean": 4455.491759702286,
+      "median": 3600.0,
+      "std": 3093.578450694169,
+      "p10": 1200.0,
+      "p25": 2100.0,
+      "p75": 6100.0,
+      "p90": 9400.0,
+      "min": 500.0,
+      "max": 12000.0,
+      "skew": 0.9807432536702656
+    },
+    "by_segment": {
+      "prime": {
+        "count": 49389,
+        "mean": 6955.178278564053,
+        "median": 6700.0,
+        "std": 3260.5365835351417,
+        "p10": 2600.0,
+        "p25": 4400.0,
+        "p75": 9600.0,
+        "p90": 12000.0,
+        "min": 500.0,
+        "max": 12000.0,
+        "skew": 0.08647934460538627
+      },
+      "near_prime": {
+        "count": 56388,
+        "mean": 3721.1161949350926,
+        "median": 3400.0,
+        "std": 2078.7464784268873,
+        "p10": 1300.0,
+        "p25": 2200.0,
+        "p75": 4800.0,
+        "p90": 6400.0,
+        "min": 500.0,
+        "max": 12000.0,
+        "skew": 1.0301324972394512
+      },
+      "subprime": {
+        "count": 35298,
+        "mean": 2131.0810810810813,
+        "median": 1900.0,
+        "std": 1209.98985283922,
+        "p10": 700.0,
+        "p25": 1300.0,
+        "p75": 2800.0,
+        "p90": 3700.0,
+        "min": 500.0,
+        "max": 12000.0,
+        "skew": 1.285936974594448
+      }
+    }
+  },
+  "utilization_distribution": {
+    "overall": {
+      "count": 144003,
+      "mean": 0.3510753977347694,
+      "median": 0.2998,
+      "std": 0.29560446190582784,
+      "p10": 0.0,
+      "p25": 0.0788,
+      "p75": 0.6149,
+      "p90": 0.7387,
+      "min": 0.0,
+      "max": 1.0,
+      "skew": 0.39508198796520133
+    },
+    "by_segment": {
+      "prime": {
+        "count": 50388,
+        "mean": 0.09116819282368818,
+        "median": 0.0798,
+        "std": 0.09687188446589125,
+        "p10": 0.0,
+        "p25": 0.0,
+        "p75": 0.1357,
+        "p90": 0.2016,
+        "min": 0.0,
+        "max": 1.0,
+        "skew": 1.9974354299643693
+      },
+      "near_prime": {
+        "count": 57624,
+        "mean": 0.3794943096626406,
+        "median": 0.3885,
+        "std": 0.2470450441111918,
+        "p10": 0.0,
+        "p25": 0.2061,
+        "p75": 0.549725,
+        "p90": 0.676,
+        "min": 0.0,
+        "max": 1.0,
+        "skew": 0.15111685995940574
+      },
+      "subprime": {
+        "count": 35991,
+        "mean": 0.6694492373093273,
+        "median": 0.6821,
+        "std": 0.20381779655549187,
+        "p10": 0.4897,
+        "p25": 0.6113,
+        "p75": 0.7579,
+        "p90": 1.0,
+        "min": 0.0,
+        "max": 1.0,
+        "skew": -1.2815002170940781
+      }
+    },
+    "fraction_at_cap": 0.03506176954646778
+  },
+  "default_rate_overall": {
+    "overall_rate": 0.0468735753112397,
+    "n_eligible": 142575,
+    "n_excluded_already_in_default": 1428,
+    "by_cohort": {
+      "test": 0.048231375690374806,
+      "train": 0.045481269947925416,
+      "validation": 0.046913476311746256
+    },
+    "by_segment": {
+      "prime": 0.027413112006703644,
+      "near_prime": 0.04450202202342396,
+      "subprime": 0.07831427601041549
+    }
+  },
+  "default_rate_by_income": [
+    {
+      "index": "267-1570",
+      "default_rate": 0.05533929510783798,
+      "count": 28515
+    },
+    {
+      "index": "1570-2363",
+      "default_rate": 0.05449572170009819,
+      "count": 28516
+    },
+    {
+      "index": "2363-3124",
+      "default_rate": 0.04860770147997475,
+      "count": 28514
+    },
+    {
+      "index": "3124-4186",
+      "default_rate": 0.04124145186743819,
+      "count": 28515
+    },
+    {
+      "index": "4186-22671",
+      "default_rate": 0.034683499912326846,
+      "count": 28515
+    }
+  ],
+  "default_rate_by_utilization": [
+    {
+      "bin": "0-10%",
+      "default_rate": 0.025521649981908093,
+      "count": 41455
+    },
+    {
+      "bin": "10-30%",
+      "default_rate": 0.03198476290555628,
+      "count": 30452
+    },
+    {
+      "bin": "30-50%",
+      "default_rate": 0.04068425805157018,
+      "count": 19934
+    },
+    {
+      "bin": "50-70%",
+      "default_rate": 0.05618157886288484,
+      "count": 31149
+    },
+    {
+      "bin": "70-90%",
+      "default_rate": 0.07080685272174633,
+      "count": 14476
+    },
+    {
+      "bin": "90-100%",
+      "default_rate": 0.20845566647093364,
+      "count": 5109
+    }
+  ],
+  "default_rate_by_age": [
+    {
+      "bin": "18-24",
+      "default_rate": 0.0468615649183147,
+      "count": 18608
+    },
+    {
+      "bin": "25-34",
+      "default_rate": 0.04675116670808826,
+      "count": 36213
+    },
+    {
+      "bin": "35-44",
+      "default_rate": 0.045066197091241114,
+      "count": 45999
+    },
+    {
+      "bin": "45-54",
+      "default_rate": 0.04952918380528266,
+      "count": 29417
+    },
+    {
+      "bin": "55-64",
+      "default_rate": 0.04735322425409047,
+      "count": 10390
+    },
+    {
+      "bin": "65+",
+      "default_rate": 0.049281314168377825,
+      "count": 1948
+    }
+  ],
+  "default_rate_by_employment_status": [
+    {
+      "employment_status": "employed",
+      "default_rate": 0.04707064100168193,
+      "count": 85616
+    },
+    {
+      "employment_status": "retired",
+      "default_rate": 0.04936103203924656,
+      "count": 16511
+    },
+    {
+      "employment_status": "self_employed",
+      "default_rate": 0.043982550680010266,
+      "count": 19485
+    },
+    {
+      "employment_status": "student",
+      "default_rate": 0.046195975711394215,
+      "count": 8399
+    },
+    {
+      "employment_status": "unemployed",
+      "default_rate": 0.04462989840348331,
+      "count": 8268
+    }
+  ],
+  "default_rate_by_tenure": [
+    {
+      "bin": "1-2y",
+      "default_rate": 0.04601272377570646,
+      "count": 6759
+    },
+    {
+      "bin": "2-3y",
+      "default_rate": 0.04446823697359029,
+      "count": 14010
+    },
+    {
+      "bin": "3-5y",
+      "default_rate": 0.048597745394555955,
+      "count": 29096
+    },
+    {
+      "bin": "5-10y",
+      "default_rate": 0.046677413079125096,
+      "count": 71962
+    },
+    {
+      "bin": "10y+",
+      "default_rate": 0.047040678619625985,
+      "count": 20748
+    }
+  ],
+  "default_rate_by_dti": [
+    {
+      "index": "-0-0.09",
+      "default_rate": 0.027985270910047343,
+      "count": 28515
+    },
+    {
+      "index": "0.09-0.28",
+      "default_rate": 0.023601613186042435,
+      "count": 28515
+    },
+    {
+      "index": "0.28-0.5",
+      "default_rate": 0.04127652112923023,
+      "count": 28515
+    },
+    {
+      "index": "0.5-0.69",
+      "default_rate": 0.051586884096089775,
+      "count": 28515
+    },
+    {
+      "index": "0.69-2.11",
+      "default_rate": 0.08991758723478871,
+      "count": 28515
+    }
+  ],
+  "default_rate_by_delinquency_history": {
+    "by_recent_delinquency_flag": {
+      "False": {
+        "default_rate": 0.02868423172991701,
+        "count": 111699
+      },
+      "True": {
+        "default_rate": 0.11267651250161938,
+        "count": 30876
+      }
+    },
+    "by_max_days_past_due": [
+      {
+        "bin": "Never",
+        "default_rate": 0.018257842358194273,
+        "count": 52854
+      },
+      {
+        "bin": "30-59d",
+        "default_rate": 0.048809395539273784,
+        "count": 64967
+      },
+      {
+        "bin": "60-89d",
+        "default_rate": 0.09863113516889606,
+        "count": 19213
+      },
+      {
+        "bin": "90d+",
+        "default_rate": 0.1176682909222162,
+        "count": 5541
+      }
+    ]
+  },
+  "spending_behavior": {
+    "essential_spending_ratio": {
+      "count": 144003,
+      "mean": 0.5527044377455658,
+      "median": 0.5999980402147924,
+      "std": 0.14757729738154432,
+      "p10": 0.4499964885879051,
+      "p25": 0.45000108305595155,
+      "p75": 0.6000068410956028,
+      "p90": 0.7200007885969197,
+      "min": 0.0,
+      "max": 0.7220708446866485,
+      "skew": -1.6677069172033043
+    },
+    "discretionary_spending_ratio": {
+      "count": 144003,
+      "mean": 0.34965396516745,
+      "median": 0.3400010795055864,
+      "std": 0.10985020980606007,
+      "p10": 0.23799680207980972,
+      "p25": 0.23801452442482057,
+      "p75": 0.46749782677076207,
+      "p90": 0.46750211890059334,
+      "min": 0.0,
+      "max": 0.4675767918088737,
+      "skew": -0.9611516707582929
+    },
+    "cash_withdrawal_ratio": {
+      "count": 144003,
+      "mean": 0.0611946844058533,
+      "median": 0.05205839053548308,
+      "std": 0.039331499508089375,
+      "p10": 0.022871208627193905,
+      "p25": 0.03214922145512847,
+      "p75": 0.08109669023823854,
+      "p90": 0.11651311836238114,
+      "min": 0.0,
+      "max": 0.3905075542371603,
+      "skew": 1.1834013686087466
+    },
+    "transaction_count": {
+      "count": 144003,
+      "mean": 6.017353805129059,
+      "median": 5.0,
+      "std": 3.8216601456083024,
+      "p10": 2.0,
+      "p25": 3.0,
+      "p75": 8.0,
+      "p90": 11.0,
+      "min": 1.0,
+      "max": 49.0,
+      "skew": 1.1911285180771516
+    },
+    "average_transaction_amount": {
+      "count": 144003,
+      "mean": 152.00457240474154,
+      "median": 156.41,
+      "std": 33.25428742373364,
+      "p10": 140.61,
+      "p25": 149.75,
+      "p75": 163.36,
+      "p90": 171.64,
+      "min": 0.0,
+      "max": 235.33,
+      "skew": -3.3635250298936574
+    },
+    "correlation_with_default_12m": {
+      "essential_spending_ratio": -0.022207817292971357,
+      "discretionary_spending_ratio": -0.11612776253217456,
+      "cash_withdrawal_ratio": 0.026223820677228102,
+      "transaction_count": -0.05108487425806062,
+      "average_transaction_amount": -0.09387589524056193
+    }
+  },
+  "monthly_cash_flow": {
+    "overall": {
+      "count": 144003,
+      "mean": 2032.5694271647117,
+      "median": 1817.09,
+      "std": 1209.844007315445,
+      "p10": 684.7940000000001,
+      "p25": 1163.4300000000003,
+      "p75": 2656.08,
+      "p90": 3620.762,
+      "min": 74.61000000000001,
+      "max": 16331.43,
+      "skew": 1.2835273633910933
+    },
+    "by_segment": {
+      "prime": {
+        "count": 50388,
+        "mean": 2671.4866547590696,
+        "median": 2520.1349999999998,
+        "std": 1384.626473130734,
+        "p10": 972.8750000000001,
+        "p25": 1703.415,
+        "p75": 3446.1249999999995,
+        "p90": 4443.941000000001,
+        "min": 204.39999999999998,
+        "max": 16331.43,
+        "skew": 0.9689606967221089
+      },
+      "near_prime": {
+        "count": 57624,
+        "mean": 1786.9488888310427,
+        "median": 1664.0500000000002,
+        "std": 960.9026150189783,
+        "p10": 648.162,
+        "p25": 1112.0675,
+        "p75": 2299.6,
+        "p90": 3023.7700000000004,
+        "min": 74.61000000000001,
+        "max": 10322.03,
+        "skew": 1.0872932024514428
+      },
+      "subprime": {
+        "count": 35991,
+        "mean": 1531.3295793392792,
+        "median": 1388.57,
+        "std": 880.2142261994815,
+        "p10": 534.45,
+        "p25": 913.815,
+        "p75": 1984.0,
+        "p90": 2670.17,
+        "min": 88.52000000000001,
+        "max": 10270.22,
+        "skew": 1.236190545580795
+      }
+    },
+    "fraction_negative": 0.0
+  },
+  "utilization_over_time": {
+    "month_1_by_segment": {
+      "near_prime": 0.39037030826644853,
+      "prime": 0.12290285347493728,
+      "subprime": 0.6760575155381092
+    },
+    "month_36_by_segment": {
+      "near_prime": 0.3894636828383007,
+      "prime": 0.09510524595903601,
+      "subprime": 0.6741417648020936
+    }
+  },
+  "delinquency_evolution": {
+    "month_1_by_segment": {
+      "near_prime": 0.06420939624763561,
+      "prime": 0.038279745579739746,
+      "subprime": 0.11408243375858684
+    },
+    "month_36_by_segment": {
+      "near_prime": 0.11727416798732171,
+      "prime": 0.08572095465950867,
+      "subprime": 0.1754988550866863
+    }
+  },
+  "correlation_structure": {
+    "top_correlates_with_default_12m": {
+      "delinquency_count": 0.1590517675774152,
+      "max_days_past_due": 0.1355264323460396,
+      "spending_volatility": 0.13132633635617552,
+      "credit_utilization": 0.1282699992573267,
+      "debt_to_income": 0.12169683080159238,
+      "max_utilization": 0.11434089156617996,
+      "payment_ratio": -0.10019266205363297,
+      "minimum_payment_ratio": -0.10019266205363297,
+      "savings_rate": 0.05981411598292395,
+      "income_volatility": 0.05527821831647493,
+      "monthly_income": -0.03467230188636618,
+      "cash_withdrawal_ratio": 0.02622382067722905,
+      "age": 0.0036977330465355245,
+      "employment_tenure_months": -0.0024969819220409,
+      "customer_tenure_months": 0.0019273641868536144
+    },
+    "full_matrix": {
+      "credit_utilization": {
+        "credit_utilization": 1.0,
+        "max_utilization": 0.74,
+        "debt_to_income": 0.901,
+        "payment_ratio": -0.699,
+        "minimum_payment_ratio": -0.699,
+        "max_days_past_due": 0.253,
+        "delinquency_count": 0.297,
+        "income_volatility": 0.467,
+        "spending_volatility": 0.354,
+        "cash_withdrawal_ratio": 0.512,
+        "savings_rate": -0.018,
+        "customer_tenure_months": -0.005,
+        "employment_tenure_months": -0.001,
+        "age": -0.004,
+        "monthly_income": -0.263,
+        "default_12m": 0.128
+      },
+      "max_utilization": {
+        "credit_utilization": 0.74,
+        "max_utilization": 1.0,
+        "debt_to_income": 0.604,
+        "payment_ratio": -0.362,
+        "minimum_payment_ratio": -0.362,
+        "max_days_past_due": 0.469,
+        "delinquency_count": 0.474,
+        "income_volatility": 0.516,
+        "spending_volatility": 0.416,
+        "cash_withdrawal_ratio": 0.562,
+        "savings_rate": -0.121,
+        "customer_tenure_months": 0.005,
+        "employment_tenure_months": 0.004,
+        "age": 0.001,
+        "monthly_income": -0.294,
+        "default_12m": 0.114
+      },
+      "debt_to_income": {
+        "credit_utilization": 0.901,
+        "max_utilization": 0.604,
+        "debt_to_income": 1.0,
+        "payment_ratio": -0.728,
+        "minimum_payment_ratio": -0.728,
+        "max_days_past_due": 0.237,
+        "delinquency_count": 0.278,
+        "income_volatility": 0.38,
+        "spending_volatility": 0.259,
+        "cash_withdrawal_ratio": 0.419,
+        "savings_rate": -0.16,
+        "customer_tenure_months": -0.007,
+        "employment_tenure_months": -0.011,
+        "age": -0.012,
+        "monthly_income": -0.243,
+        "default_12m": 0.122
+      },
+      "payment_ratio": {
+        "credit_utilization": -0.699,
+        "max_utilization": -0.362,
+        "debt_to_income": -0.728,
+        "payment_ratio": 1.0,
+        "minimum_payment_ratio": 1.0,
+        "max_days_past_due": -0.166,
+        "delinquency_count": -0.203,
+        "income_volatility": -0.238,
+        "spending_volatility": -0.161,
+        "cash_withdrawal_ratio": -0.27,
+        "savings_rate": 0.016,
+        "customer_tenure_months": 0.005,
+        "employment_tenure_months": 0.074,
+        "age": 0.033,
+        "monthly_income": 0.271,
+        "default_12m": -0.1
+      },
+      "minimum_payment_ratio": {
+        "credit_utilization": -0.699,
+        "max_utilization": -0.362,
+        "debt_to_income": -0.728,
+        "payment_ratio": 1.0,
+        "minimum_payment_ratio": 1.0,
+        "max_days_past_due": -0.166,
+        "delinquency_count": -0.203,
+        "income_volatility": -0.238,
+        "spending_volatility": -0.161,
+        "cash_withdrawal_ratio": -0.27,
+        "savings_rate": 0.016,
+        "customer_tenure_months": 0.005,
+        "employment_tenure_months": 0.074,
+        "age": 0.033,
+        "monthly_income": 0.271,
+        "default_12m": -0.1
+      },
+      "max_days_past_due": {
+        "credit_utilization": 0.253,
+        "max_utilization": 0.469,
+        "debt_to_income": 0.237,
+        "payment_ratio": -0.166,
+        "minimum_payment_ratio": -0.166,
+        "max_days_past_due": 1.0,
+        "delinquency_count": 0.845,
+        "income_volatility": 0.138,
+        "spending_volatility": 0.312,
+        "cash_withdrawal_ratio": 0.097,
+        "savings_rate": 0.097,
+        "customer_tenure_months": 0.019,
+        "employment_tenure_months": 0.002,
+        "age": 0.002,
+        "monthly_income": -0.075,
+        "default_12m": 0.136
+      },
+      "delinquency_count": {
+        "credit_utilization": 0.297,
+        "max_utilization": 0.474,
+        "debt_to_income": 0.278,
+        "payment_ratio": -0.203,
+        "minimum_payment_ratio": -0.203,
+        "max_days_past_due": 0.845,
+        "delinquency_count": 1.0,
+        "income_volatility": 0.156,
+        "spending_volatility": 0.372,
+        "cash_withdrawal_ratio": 0.1,
+        "savings_rate": 0.123,
+        "customer_tenure_months": 0.032,
+        "employment_tenure_months": -0.003,
+        "age": 0.001,
+        "monthly_income": -0.085,
+        "default_12m": 0.159
+      },
+      "income_volatility": {
+        "credit_utilization": 0.467,
+        "max_utilization": 0.516,
+        "debt_to_income": 0.38,
+        "payment_ratio": -0.238,
+        "minimum_payment_ratio": -0.238,
+        "max_days_past_due": 0.138,
+        "delinquency_count": 0.156,
+        "income_volatility": 1.0,
+        "spending_volatility": 0.249,
+        "cash_withdrawal_ratio": 0.432,
+        "savings_rate": -0.031,
+        "customer_tenure_months": -0.009,
+        "employment_tenure_months": -0.002,
+        "age": -0.004,
+        "monthly_income": -0.22,
+        "default_12m": 0.055
+      },
+      "spending_volatility": {
+        "credit_utilization": 0.354,
+        "max_utilization": 0.416,
+        "debt_to_income": 0.259,
+        "payment_ratio": -0.161,
+        "minimum_payment_ratio": -0.161,
+        "max_days_past_due": 0.312,
+        "delinquency_count": 0.372,
+        "income_volatility": 0.249,
+        "spending_volatility": 1.0,
+        "cash_withdrawal_ratio": 0.059,
+        "savings_rate": 0.315,
+        "customer_tenure_months": -0.004,
+        "employment_tenure_months": 0.001,
+        "age": -0.001,
+        "monthly_income": -0.131,
+        "default_12m": 0.131
+      },
+      "cash_withdrawal_ratio": {
+        "credit_utilization": 0.512,
+        "max_utilization": 0.562,
+        "debt_to_income": 0.419,
+        "payment_ratio": -0.27,
+        "minimum_payment_ratio": -0.27,
+        "max_days_past_due": 0.097,
+        "delinquency_count": 0.1,
+        "income_volatility": 0.432,
+        "spending_volatility": 0.059,
+        "cash_withdrawal_ratio": 1.0,
+        "savings_rate": -0.256,
+        "customer_tenure_months": -0.006,
+        "employment_tenure_months": 0.001,
+        "age": -0.002,
+        "monthly_income": -0.257,
+        "default_12m": 0.026
+      },
+      "savings_rate": {
+        "credit_utilization": -0.018,
+        "max_utilization": -0.121,
+        "debt_to_income": -0.16,
+        "payment_ratio": 0.016,
+        "minimum_payment_ratio": 0.016,
+        "max_days_past_due": 0.097,
+        "delinquency_count": 0.123,
+        "income_volatility": -0.031,
+        "spending_volatility": 0.315,
+        "cash_withdrawal_ratio": -0.256,
+        "savings_rate": 1.0,
+        "customer_tenure_months": 0.003,
+        "employment_tenure_months": 0.007,
+        "age": 0.004,
+        "monthly_income": 0.056,
+        "default_12m": 0.06
+      },
+      "customer_tenure_months": {
+        "credit_utilization": -0.005,
+        "max_utilization": 0.005,
+        "debt_to_income": -0.007,
+        "payment_ratio": 0.005,
+        "minimum_payment_ratio": 0.005,
+        "max_days_past_due": 0.019,
+        "delinquency_count": 0.032,
+        "income_volatility": -0.009,
+        "spending_volatility": -0.004,
+        "cash_withdrawal_ratio": -0.006,
+        "savings_rate": 0.003,
+        "customer_tenure_months": 1.0,
+        "employment_tenure_months": 0.005,
+        "age": 0.003,
+        "monthly_income": 0.009,
+        "default_12m": 0.002
+      },
+      "employment_tenure_months": {
+        "credit_utilization": -0.001,
+        "max_utilization": 0.004,
+        "debt_to_income": -0.011,
+        "payment_ratio": 0.074,
+        "minimum_payment_ratio": 0.074,
+        "max_days_past_due": 0.002,
+        "delinquency_count": -0.003,
+        "income_volatility": -0.002,
+        "spending_volatility": 0.001,
+        "cash_withdrawal_ratio": 0.001,
+        "savings_rate": 0.007,
+        "customer_tenure_months": 0.005,
+        "employment_tenure_months": 1.0,
+        "age": 0.508,
+        "monthly_income": 0.369,
+        "default_12m": -0.002
+      },
+      "age": {
+        "credit_utilization": -0.004,
+        "max_utilization": 0.001,
+        "debt_to_income": -0.012,
+        "payment_ratio": 0.033,
+        "minimum_payment_ratio": 0.033,
+        "max_days_past_due": 0.002,
+        "delinquency_count": 0.001,
+        "income_volatility": -0.004,
+        "spending_volatility": -0.001,
+        "cash_withdrawal_ratio": -0.002,
+        "savings_rate": 0.004,
+        "customer_tenure_months": 0.003,
+        "employment_tenure_months": 0.508,
+        "age": 1.0,
+        "monthly_income": 0.224,
+        "default_12m": 0.004
+      },
+      "monthly_income": {
+        "credit_utilization": -0.263,
+        "max_utilization": -0.294,
+        "debt_to_income": -0.243,
+        "payment_ratio": 0.271,
+        "minimum_payment_ratio": 0.271,
+        "max_days_past_due": -0.075,
+        "delinquency_count": -0.085,
+        "income_volatility": -0.22,
+        "spending_volatility": -0.131,
+        "cash_withdrawal_ratio": -0.257,
+        "savings_rate": 0.056,
+        "customer_tenure_months": 0.009,
+        "employment_tenure_months": 0.369,
+        "age": 0.224,
+        "monthly_income": 1.0,
+        "default_12m": -0.035
+      },
+      "default_12m": {
+        "credit_utilization": 0.128,
+        "max_utilization": 0.114,
+        "debt_to_income": 0.122,
+        "payment_ratio": -0.1,
+        "minimum_payment_ratio": -0.1,
+        "max_days_past_due": 0.136,
+        "delinquency_count": 0.159,
+        "income_volatility": 0.055,
+        "spending_volatility": 0.131,
+        "cash_withdrawal_ratio": 0.026,
+        "savings_rate": 0.06,
+        "customer_tenure_months": 0.002,
+        "employment_tenure_months": -0.002,
+        "age": 0.004,
+        "monthly_income": -0.035,
+        "default_12m": 1.0
+      }
+    }
+  }
+}

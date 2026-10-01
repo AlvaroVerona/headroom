@@ -1,0 +1,40 @@
+{
+  "n_test_rows": 45596,
+  "n_excluded_missing_inputs": 2405,
+  "mean_revenue": {
+    "interest_revenue": 21.34870510980678,
+    "interchange_revenue": 11.33429138345469,
+    "late_fee_revenue": 2.9372094043337134,
+    "total_revenue": 35.620205897595184
+  },
+  "total_portfolio_monthly_revenue": 1624138.90810675,
+  "by_segment": {
+    "near_prime": {
+      "interest_revenue": 24.9943,
+      "interchange_revenue": 12.8964,
+      "late_fee_revenue": 2.8045,
+      "total_revenue": 40.6952
+    },
+    "prime": {
+      "interest_revenue": 8.8422,
+      "interchange_revenue": 12.4837,
+      "late_fee_revenue": 2.1409,
+      "total_revenue": 23.4668
+    },
+    "subprime": {
+      "interest_revenue": 32.9788,
+      "interchange_revenue": 7.2266,
+      "late_fee_revenue": 4.262,
+      "total_revenue": 44.4674
+    }
+  },
+  "formula_validation_against_real_labels": {
+    "n_checked": 147150,
+    "max_abs_diff_interest": 0.010000000000019327,
+    "mean_abs_diff_interest": 4.3999914146509585e-05,
+    "max_abs_diff_interchange": 0.010000000000005116,
+    "mean_abs_diff_interchange": 3.248386000679567e-05
+  },
+  "late_fee_amount": 25,
+  "interchange_rate": 0.012
+}

@@ -32,7 +32,7 @@ block (base/recession/high_interest_rate/consumer_stress).
 
 **What is deliberately NOT shocked**: `average_balance` and LGD.
 `evaluate_at_limit` (profitability.py) has no causal balance-response-to
--macro-shock model -- same reasoning CLAUDE.md already gives for why
+-macro-shock model -- same reasoning docs/ENGINEERING_LOG.md already gives for why
 `credit_exposure` isn't used to shock EAD (this generator never varies a
 customer's limit over time, so no model has ever seen the counterfactual
 needed to estimate one). Expected Loss rises under stress via PD x LGD x

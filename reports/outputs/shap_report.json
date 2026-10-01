@@ -1,0 +1,462 @@
+{
+  "logistic_regression": {
+    "model": "logistic_regression",
+    "sample_size": 2000,
+    "global_importance": {
+      "delinquency_count": 0.3707,
+      "discretionary_spending_ratio": 0.1687,
+      "recent_delinquency": 0.1546,
+      "days_past_due": 0.1277,
+      "credit_utilization": 0.0975,
+      "essential_spending_ratio": 0.0874,
+      "average_balance": 0.0855,
+      "end_balance_6m_avg": 0.0791,
+      "max_days_past_due": 0.0783,
+      "credit_utilization_6m_growth": 0.0746,
+      "savings_rate": 0.0584,
+      "credit_utilization_3m_growth": 0.0533,
+      "monthly_income": 0.0429,
+      "cash_withdrawal_ratio": 0.0307,
+      "average_transaction_amount": 0.029,
+      "monthly_spend_6m_growth": 0.029,
+      "monthly_income_3m_growth": 0.026,
+      "payment_ratio": 0.0257,
+      "debt_to_income": 0.025,
+      "employment_stable": 0.0234,
+      "transaction_count": 0.0232,
+      "customer_tenure_months": 0.015,
+      "credit_utilization_3m_avg": 0.0142,
+      "monthly_spend_6m_avg": 0.0126,
+      "employment_tenure_months": 0.0119,
+      "max_utilization": 0.0112,
+      "min_balance_12m": 0.0104,
+      "monthly_spend_3m_growth": 0.0069,
+      "monthly_income_6m_growth": 0.0062,
+      "spending_volatility": 0.0039,
+      "income_volatility": 0.0015,
+      "credit_exposure": 0.0014
+    },
+    "top_dependence_features": [
+      "delinquency_count",
+      "discretionary_spending_ratio",
+      "recent_delinquency",
+      "days_past_due"
+    ],
+    "examples": [
+      {
+        "customer_id": "C0031878",
+        "predicted_default_probability": 0.010423249239898295,
+        "model_base_value": -0.14530586349155297,
+        "risk_increasing_factors": [
+          {
+            "feature": "transaction_count",
+            "value": 20.0,
+            "shap_contribution": 0.1073
+          },
+          {
+            "feature": "monthly_spend_6m_avg",
+            "value": 2661.9966666666664,
+            "shap_contribution": 0.0494
+          },
+          {
+            "feature": "employment_stable",
+            "value": 0.0,
+            "shap_contribution": 0.0284
+          },
+          {
+            "feature": "payment_ratio",
+            "value": 19.8264,
+            "shap_contribution": 0.0125
+          },
+          {
+            "feature": "max_utilization",
+            "value": 0.2876,
+            "shap_contribution": 0.012
+          }
+        ],
+        "risk_reducing_factors": [
+          {
+            "feature": "delinquency_count",
+            "value": 0.0,
+            "shap_contribution": -0.416
+          },
+          {
+            "feature": "discretionary_spending_ratio",
+            "value": 0.46750022926133583,
+            "shap_contribution": -0.2122
+          },
+          {
+            "feature": "monthly_income",
+            "value": 8126.6,
+            "shap_contribution": -0.1755
+          },
+          {
+            "feature": "average_balance",
+            "value": 2393.35,
+            "shap_contribution": -0.1505
+          },
+          {
+            "feature": "credit_utilization_3m_growth",
+            "value": 2.0,
+            "shap_contribution": -0.1322
+          }
+        ]
+      },
+      {
+        "customer_id": "C0044725",
+        "predicted_default_probability": 0.03294820393880799,
+        "model_base_value": -0.14530586349155297,
+        "risk_increasing_factors": [
+          {
+            "feature": "recent_delinquency",
+            "value": 1.0,
+            "shap_contribution": 0.3945
+          },
+          {
+            "feature": "credit_utilization_6m_growth",
+            "value": 0.7978436657681941,
+            "shap_contribution": 0.0682
+          },
+          {
+            "feature": "delinquency_count",
+            "value": 2.0,
+            "shap_contribution": 0.0449
+          },
+          {
+            "feature": "savings_rate",
+            "value": 0.7023,
+            "shap_contribution": 0.0149
+          },
+          {
+            "feature": "transaction_count",
+            "value": 8.0,
+            "shap_contribution": 0.0144
+          }
+        ],
+        "risk_reducing_factors": [
+          {
+            "feature": "discretionary_spending_ratio",
+            "value": 0.46750235774913546,
+            "shap_contribution": -0.2123
+          },
+          {
+            "feature": "essential_spending_ratio",
+            "value": 0.45,
+            "shap_contribution": -0.0781
+          },
+          {
+            "feature": "days_past_due",
+            "value": 0.0,
+            "shap_contribution": -0.0548
+          },
+          {
+            "feature": "average_balance",
+            "value": 1546.51,
+            "shap_contribution": -0.0542
+          },
+          {
+            "feature": "credit_utilization_3m_growth",
+            "value": 0.7451239669421489,
+            "shap_contribution": -0.0507
+          }
+        ]
+      },
+      {
+        "customer_id": "C0038939",
+        "predicted_default_probability": 0.5685337296366063,
+        "model_base_value": -0.14530586349155297,
+        "risk_increasing_factors": [
+          {
+            "feature": "delinquency_count",
+            "value": 10.0,
+            "shap_contribution": 1.8887
+          },
+          {
+            "feature": "days_past_due",
+            "value": 60.0,
+            "shap_contribution": 1.1636
+          },
+          {
+            "feature": "recent_delinquency",
+            "value": 1.0,
+            "shap_contribution": 0.3945
+          },
+          {
+            "feature": "max_days_past_due",
+            "value": 120.0,
+            "shap_contribution": 0.3908
+          },
+          {
+            "feature": "credit_utilization",
+            "value": 0.9693,
+            "shap_contribution": 0.248
+          }
+        ],
+        "risk_reducing_factors": [
+          {
+            "feature": "average_balance",
+            "value": 2516.68,
+            "shap_contribution": -0.1645
+          },
+          {
+            "feature": "credit_utilization_3m_growth",
+            "value": 1.3971786559186894,
+            "shap_contribution": -0.0931
+          },
+          {
+            "feature": "savings_rate",
+            "value": 0.5658,
+            "shap_contribution": -0.076
+          },
+          {
+            "feature": "debt_to_income",
+            "value": 1.1506829496301463,
+            "shap_contribution": -0.0728
+          },
+          {
+            "feature": "payment_ratio",
+            "value": 0.0,
+            "shap_contribution": -0.0542
+          }
+        ]
+      }
+    ]
+  },
+  "xgboost": {
+    "model": "xgboost",
+    "sample_size": 2000,
+    "global_importance": {
+      "delinquency_count": 0.2946999967098236,
+      "recent_delinquency": 0.22200000286102295,
+      "days_past_due": 0.15230000019073486,
+      "discretionary_spending_ratio": 0.08590000122785568,
+      "credit_utilization_6m_avg": 0.04809999838471413,
+      "max_utilization": 0.03240000084042549,
+      "credit_utilization_3m_avg": 0.030899999663233757,
+      "monthly_spend_6m_growth": 0.030400000512599945,
+      "payment_ratio": 0.0284000001847744,
+      "max_days_past_due": 0.026000000536441803,
+      "cash_buffer": 0.024800000712275505,
+      "customer_tenure_months": 0.0203000009059906,
+      "monthly_spend_6m_avg": 0.019200000911951065,
+      "cash_withdrawal_ratio": 0.01860000006854534,
+      "spending_volatility": 0.018200000748038292,
+      "essential_spending_ratio": 0.015699999406933784,
+      "credit_utilization_12m_avg": 0.014700000174343586,
+      "credit_utilization": 0.014499999582767487,
+      "credit_utilization_6m_growth": 0.014399999752640724,
+      "end_balance_3m_growth": 0.0142000000923872,
+      "credit_utilization_3m_growth": 0.01360000018030405,
+      "end_balance_12m_avg": 0.013500000350177288,
+      "end_balance_6m_growth": 0.011300000362098217,
+      "savings_rate": 0.010499999858438969,
+      "monthly_spend_3m_growth": 0.008100000210106373,
+      "employment_tenure_months": 0.007899999618530273,
+      "monthly_income_3m_growth": 0.007600000128149986,
+      "monthly_spend_12m_avg": 0.007300000172108412,
+      "minimum_payment_ratio": 0.007300000172108412,
+      "end_balance_6m_avg": 0.007199999876320362,
+      "monthly_income_6m_growth": 0.006500000134110451,
+      "income_stability": 0.0052999998442828655,
+      "credit_exposure": 0.005200000014156103,
+      "income_volatility": 0.004699999932199717,
+      "monthly_income_6m_avg": 0.004600000102072954,
+      "monthly_spend_3m_avg": 0.004100000020116568,
+      "monthly_income_12m_avg": 0.003599999938160181,
+      "monthly_income_3m_avg": 0.0034000000450760126,
+      "end_balance_3m_avg": 0.003100000089034438,
+      "debt_to_income": 0.002899999963119626,
+      "transaction_count": 0.00279999990016222,
+      "average_balance": 0.00279999990016222,
+      "average_transaction_amount": 0.002400000113993883,
+      "monthly_income": 0.002099999925121665,
+      "min_balance_12m": 0.0008999999845400453,
+      "employment_stable": 0.0
+    },
+    "top_dependence_features": [
+      "delinquency_count",
+      "recent_delinquency",
+      "days_past_due",
+      "discretionary_spending_ratio"
+    ],
+    "examples": [
+      {
+        "customer_id": "C0030982",
+        "predicted_default_probability": 0.0,
+        "model_base_value": 0.010121507570147514,
+        "risk_increasing_factors": [
+          {
+            "feature": "monthly_income_3m_growth",
+            "value": 0.058317448214512624,
+            "shap_contribution": 0.0037
+          },
+          {
+            "feature": "income_volatility",
+            "value": 0.048,
+            "shap_contribution": 0.0035
+          },
+          {
+            "feature": "monthly_income_3m_avg",
+            "value": 3049.42,
+            "shap_contribution": 0.0014
+          },
+          {
+            "feature": "transaction_count",
+            "value": 6.0,
+            "shap_contribution": 0.0007
+          },
+          {
+            "feature": "average_balance",
+            "value": 245.46,
+            "shap_contribution": 0.0006
+          }
+        ],
+        "risk_reducing_factors": [
+          {
+            "feature": "delinquency_count",
+            "value": 0.0,
+            "shap_contribution": -0.3683
+          },
+          {
+            "feature": "recent_delinquency",
+            "value": 0.0,
+            "shap_contribution": -0.2084
+          },
+          {
+            "feature": "credit_utilization_6m_avg",
+            "value": 0.030766666666666664,
+            "shap_contribution": -0.1259
+          },
+          {
+            "feature": "days_past_due",
+            "value": 0.0,
+            "shap_contribution": -0.117
+          },
+          {
+            "feature": "credit_utilization_3m_avg",
+            "value": 0.03029999999999999,
+            "shap_contribution": -0.0935
+          }
+        ]
+      },
+      {
+        "customer_id": "C0021355",
+        "predicted_default_probability": 0.03450292348861694,
+        "model_base_value": 0.010121507570147514,
+        "risk_increasing_factors": [
+          {
+            "feature": "delinquency_count",
+            "value": 3.0,
+            "shap_contribution": 0.4355
+          },
+          {
+            "feature": "max_days_past_due",
+            "value": 60.0,
+            "shap_contribution": 0.0254
+          },
+          {
+            "feature": "spending_volatility",
+            "value": 0.24,
+            "shap_contribution": 0.0188
+          },
+          {
+            "feature": "end_balance_3m_growth",
+            "value": -0.3106611831698829,
+            "shap_contribution": 0.0155
+          },
+          {
+            "feature": "max_utilization",
+            "value": 0.8312,
+            "shap_contribution": 0.0138
+          }
+        ],
+        "risk_reducing_factors": [
+          {
+            "feature": "recent_delinquency",
+            "value": 0.0,
+            "shap_contribution": -0.1961
+          },
+          {
+            "feature": "days_past_due",
+            "value": 0.0,
+            "shap_contribution": -0.1596
+          },
+          {
+            "feature": "customer_tenure_months",
+            "value": 133.0,
+            "shap_contribution": -0.1274
+          },
+          {
+            "feature": "credit_utilization_6m_avg",
+            "value": 0.07721666666666667,
+            "shap_contribution": -0.0689
+          },
+          {
+            "feature": "discretionary_spending_ratio",
+            "value": 0.3399959727418209,
+            "shap_contribution": -0.0603
+          }
+        ]
+      },
+      {
+        "customer_id": "C0028597",
+        "predicted_default_probability": 0.5,
+        "model_base_value": 0.010121507570147514,
+        "risk_increasing_factors": [
+          {
+            "feature": "days_past_due",
+            "value": 60.0,
+            "shap_contribution": 0.8132
+          },
+          {
+            "feature": "delinquency_count",
+            "value": 6.0,
+            "shap_contribution": 0.5854
+          },
+          {
+            "feature": "recent_delinquency",
+            "value": 1.0,
+            "shap_contribution": 0.4375
+          },
+          {
+            "feature": "discretionary_spending_ratio",
+            "value": 0.0,
+            "shap_contribution": 0.0805
+          },
+          {
+            "feature": "payment_ratio",
+            "value": 0.0,
+            "shap_contribution": 0.0715
+          }
+        ],
+        "risk_reducing_factors": [
+          {
+            "feature": "essential_spending_ratio",
+            "value": 0.0,
+            "shap_contribution": -0.01
+          },
+          {
+            "feature": "cash_withdrawal_ratio",
+            "value": 0.0,
+            "shap_contribution": -0.0057
+          },
+          {
+            "feature": "average_transaction_amount",
+            "value": 0.0,
+            "shap_contribution": -0.0056
+          },
+          {
+            "feature": "customer_tenure_months",
+            "value": 44.0,
+            "shap_contribution": -0.0038
+          },
+          {
+            "feature": "credit_utilization_6m_growth",
+            "value": 0.0,
+            "shap_contribution": -0.0037
+          }
+        ]
+      }
+    ]
+  }
+}

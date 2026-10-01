@@ -279,7 +279,7 @@ def write_model_card(report: dict) -> None:
         f"R² ~0.58-0.61: the scatter shows predictions clustering into roughly three "
         "horizontal bands rather than tracking the diagonal closely — the model captures "
         "*segment*-level utilization well (prime ~0.08-0.10, near_prime/subprime ~0.68-0.70, "
-        "matching the equilibrium bands documented in CLAUDE.md's Phase 1 notes) but less of "
+        "matching the equilibrium bands documented in docs/ENGINEERING_LOG.md's Phase 1 notes) but less of "
         "the within-segment variation around each customer's own equilibrium. Consistent "
         "with the generator's design, not a modeling shortfall to chase further here.",
         "",
@@ -300,7 +300,7 @@ def write_model_card(report: dict) -> None:
         f"credit_exposure exclusion), roughly €"
         f"{ts['total_portfolio_expected_loss'] / ts['n'] * 50000:,.0f}, remarkably close to "
         "`config/settings.yaml`'s `optimization.portfolio_expected_loss_limit` placeholder "
-        "of €3,000,000 (documented in CLAUDE.md as \"to be recalibrated once the actual "
+        "of €3,000,000 (documented in docs/ENGINEERING_LOG.md as \"to be recalibrated once the actual "
         "portfolio's scale is known\") — it turns out to already be a reasonable estimate, "
         "not just a round-number guess. Left unchanged here; Phase 5's optimization is "
         "where this constraint actually gets enforced.",

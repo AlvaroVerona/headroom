@@ -14,7 +14,7 @@ summary) and across a candidate limit grid for a handful of example
 customers (§22's own illustrative table format).
 
 **Balance response to a candidate limit** -- the modeling choice
-CLAUDE.md flagged as needed and undefined until now:
+docs/ENGINEERING_LOG.md flagged as needed and undefined until now:
 
 ```
 balance(L) = min(current_balance * (L / current_limit) ** elasticity, L)
@@ -25,7 +25,7 @@ current_balance) point (so `balance(current_limit) == current_balance`
 by construction), with `elasticity` a config value (`optimization.
 balance_elasticity`, default 0.3) `< 1` so balance grows slower than the
 candidate limit -- diminishing returns by construction, the concave
-Limit-vs-Profit shape CLAUDE.md's note asked for. The `min(..., L)` term
+Limit-vs-Profit shape docs/ENGINEERING_LOG.md's note asked for. The `min(..., L)` term
 enforces the physical constraint that balance can never exceed the limit
 that bounds it.
 

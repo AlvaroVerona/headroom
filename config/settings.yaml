@@ -1,5 +1,5 @@
 # Headroom — central configuration. Every constant/threshold/seed lives
-# here; nothing is hardcoded in src/. See CLAUDE.md for the reasoning
+# here; nothing is hardcoded in src/. See docs/ENGINEERING_LOG.md for the reasoning
 # behind non-obvious choices below.
 
 random_seed: 42
@@ -12,7 +12,7 @@ data:
   # separate snapshot dates (train/validation/test) each with its own fully
   # observed forward window. 36 months is the minimum that fits three
   # non-degenerate snapshots without truncating any of their label
-  # windows -- see snapshot_months below and CLAUDE.md.
+  # windows -- see snapshot_months below and docs/ENGINEERING_LOG.md.
   n_months: 36
   start_date: "2023-01-01"
   target_n_transactions: 500000
@@ -98,7 +98,7 @@ optimization:
   maximum_limit: 10000
   step: 500
   # Placeholder, recalibrated in Phase 5 once the actual generated
-  # portfolio's exposure/loss scale is known (see CLAUDE.md for the
+  # portfolio's exposure/loss scale is known (see docs/ENGINEERING_LOG.md for the
   # analogous recalibration in the Breach Point project) -- an
   # arbitrary limit picked before seeing real data is just as likely to
   # be meaninglessly loose or impossibly tight as Breach Point's original

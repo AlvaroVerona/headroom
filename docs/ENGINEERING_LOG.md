@@ -1,17 +1,17 @@
-# Headroom — engineering notes for Claude Code
+# Headroom — engineering log
 
 Dynamic Credit Limit Optimization for a Digital Bank. Portfolio project: raw,
 imperfect banking data → validated data → risk model (PD) → expected loss →
 revenue/profitability → per-customer and portfolio credit limit optimization
 → Monte Carlo/stress testing → Streamlit dashboard.
 
-Sibling project: `../breach-point` (Financial Data Quality/Forecasting/
+Sibling project: [breach-point](https://github.com/AlvaroVerona/breach-point) (Financial Data Quality/Forecasting/
 Liquidity Optimization). Same engineering conventions, different domain —
 don't assume code is shared, but the same principles apply (never fabricate
 a result, config-driven constants, RAW→VALIDATED→QUARANTINED lineage,
 recalibrate placeholder thresholds once real data exists).
 
-## Key decisions (do not relitigate without asking)
+## Key decisions
 
 - **XGBoost is used** (unlike breach-point's sklearn-only forecasting
   choice) — this spec explicitly asks for it as the advanced risk model
@@ -435,7 +435,7 @@ for calibrating an already-fitted estimator) rather than the older
 (LR, on the imputed+scaled feature space, exact) and `shap.TreeExplainer`
 with `feature_perturbation="tree_path_dependent"` (XGBoost, exact,
 handles NaN natively) on a 2,000-row sample of the test cohort per
-CLAUDE.md's documented sampling convention. SHAP explains each model's
+docs/ENGINEERING_LOG.md's documented sampling convention. SHAP explains each model's
 own raw decision function, not the calibrated probability (post-hoc,
 non-linear, no well-defined per-feature attribution) — the "Predicted
 Default Probability" shown for each individual customer example comes
@@ -730,7 +730,7 @@ model score), `funding_rate_shift` (reuses `funding_cost.py`'s own
 `funding_rate_for_scenario`), `apr_shift` (added to each customer's own APR).
 
 **Deliberately NOT shocked**: `average_balance` (no causal balance-response-to-macro-shock
-model exists, the same reasoning CLAUDE.md already gives for why `credit_exposure` can't be
+model exists, the same reasoning docs/ENGINEERING_LOG.md already gives for why `credit_exposure` can't be
 used to shock EAD) and LGD (no scenario key for it in the spec's own scaffolded config --
 same "don't invent what the spec didn't ask for" principle as `funding_cost.py`'s flat
 funding rate).
@@ -803,7 +803,7 @@ invented.
 
 `app/` -- an 8-page Streamlit dashboard (Executive Overview + Data Quality, Risk
 Models, Economics, Optimization, Stress Testing, Monte Carlo Risk, Monitoring),
-mirroring `../breach-point`'s own dashboard conventions: `app/__init__.py` (required
+mirroring [breach-point](https://github.com/AlvaroVerona/breach-point)'s own dashboard conventions: `app/__init__.py` (required
 for `app.pages.*` to import `from app.components...` -- without it,
 `streamlit run app/app.py` raises `ModuleNotFoundError`), `app/components/data_loader.py`
 (`st.cache_data`-wrapped readers of `reports/outputs/*.json` -- never recomputes the
@@ -817,7 +817,7 @@ proves "didn't crash," not "looks right."
 
 **Documentation**: README.md rewritten from the phase-by-phase build log it was
 during Phases 1-6 into a polished, portfolio-facing document (results table,
-condensed methodology, dashboard description, verification) -- this file (CLAUDE.md)
+condensed methodology, dashboard description, verification) -- this file (docs/ENGINEERING_LOG.md)
 keeps the detailed, dated engineering log with every decision and bug.
 
 **Final audit**: full `make all` (data generation through drift monitoring) re-run

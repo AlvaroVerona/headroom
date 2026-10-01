@@ -18,7 +18,7 @@ near-duplicates of an earlier-listed feature on the train cohort (see
 select_model_features below).
 
 `age` is the one protected characteristic (§ fairness) in the feature
-table; CLAUDE.md's rule is not to use one as a direct model input without
+table; docs/ENGINEERING_LOG.md's rule is not to use one as a direct model input without
 a fairness discussion, and Phase 2's EDA already found age carries ~0
 default signal (flat within ~1pp across every age band) -- so excluding
 it costs nothing and needs no such discussion for this baseline. Every

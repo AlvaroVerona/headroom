@@ -69,5 +69,5 @@ if hir and base and abs(hir["total_expected_profit"] - base["total_expected_prof
         "**Real finding**: `high_interest_rate`'s net profit matches base almost exactly -- "
         "equal-magnitude `funding_rate_shift` and `apr_shift` (+3pp each) cancel in net profit "
         "even though gross revenue and gross funding cost both move by real, substantial "
-        "amounts. See CLAUDE.md / the scenario model card for the full breakdown."
+        "amounts. See docs/ENGINEERING_LOG.md / the scenario model card for the full breakdown."
     )
