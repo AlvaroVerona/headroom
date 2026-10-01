@@ -162,14 +162,19 @@ than recomputing the pipeline per click — Phase 3's model training and Phase 6
 Monte Carlo simulation alone would make the UI unusable otherwise.
 
 <p align="center">
-  <img src="docs/screenshots/executive_overview.jpg" width="32%" alt="Executive Overview" />
-  <img src="docs/screenshots/monte_carlo_risk.jpg" width="32%" alt="Monte Carlo VaR/CVaR sanity-check table" />
-  <img src="docs/screenshots/optimization.jpg" width="32%" alt="Individual + portfolio optimization" />
+  <img src="docs/screenshots/executive_overview.jpg" width="49%" alt="Executive Overview" />
+  <img src="docs/screenshots/data_quality.jpg" width="49%" alt="Data Quality" />
+  <img src="docs/screenshots/risk_models.jpg" width="49%" alt="Risk Models: LR vs XGBoost, calibration, SHAP" />
+  <img src="docs/screenshots/economics.jpg" width="49%" alt="Economics: Expected Loss, revenue, profitability" />
+  <img src="docs/screenshots/optimization.jpg" width="49%" alt="Individual + portfolio optimization" />
+  <img src="docs/screenshots/stress_testing.jpg" width="49%" alt="Stress Testing scenarios" />
+  <img src="docs/screenshots/monte_carlo_risk.jpg" width="49%" alt="Monte Carlo VaR/CVaR" />
+  <img src="docs/screenshots/monitoring.jpg" width="49%" alt="Drift Monitoring / PSI" />
 </p>
 
-Executive Overview (shown above) · Data Quality · Risk Models (LR/XGBoost/
-calibration/SHAP) · Economics · Optimization (shown above) · Stress Testing ·
-Monte Carlo Risk (shown above) · Monitoring.
+Executive Overview · Data Quality · Risk Models (LR/XGBoost/calibration/SHAP) ·
+Economics · Optimization · Stress Testing · Monte Carlo Risk · Monitoring.
+Try them live in the [demo](https://headroom-credit-risk.streamlit.app/).
 
 ## Verification
 
