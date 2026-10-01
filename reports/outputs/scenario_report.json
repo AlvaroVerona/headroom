@@ -1,0 +1,53 @@
+{
+  "n_funded": 17205,
+  "n_excluded_missing_inputs": 0,
+  "summary_by_scenario": {
+    "base": {
+      "n_customers": 17205,
+      "mean_pd": 0.03557007912658989,
+      "total_exposure": 150000000.0,
+      "total_revenue": 11269664.743327294,
+      "total_funding_cost": 1714175.205514071,
+      "total_expected_loss": 939347.5587864949,
+      "total_expected_profit": 8186016.979026726,
+      "mean_expected_profit": 475.7929078190483
+    },
+    "recession": {
+      "n_customers": 17205,
+      "mean_pd": 0.0585360059400209,
+      "total_exposure": 150000000.0,
+      "total_revenue": 10952961.519247293,
+      "total_funding_cost": 2057010.246616885,
+      "total_expected_loss": 1547544.987971179,
+      "total_expected_profit": 6918281.284659229,
+      "mean_expected_profit": 402.1087640022801
+    },
+    "high_interest_rate": {
+      "n_customers": 17205,
+      "mean_pd": 0.03557007912658989,
+      "total_exposure": 150000000.0,
+      "total_revenue": 12298169.866635734,
+      "total_funding_cost": 2742680.328822513,
+      "total_expected_loss": 939347.5587864949,
+      "total_expected_profit": 8186016.979026726,
+      "mean_expected_profit": 475.7929078190483
+    },
+    "consumer_stress": {
+      "n_customers": 17205,
+      "mean_pd": 0.03622560167419368,
+      "total_exposure": 150000000.0,
+      "total_revenue": 11269664.743327294,
+      "total_funding_cost": 1714175.205514071,
+      "total_expected_loss": 959011.3841901782,
+      "total_expected_profit": 8166353.153623044,
+      "mean_expected_profit": 474.64999439831695
+    }
+  },
+  "expected_loss_multiplier_vs_base": {
+    "base": 1.0,
+    "recession": 1.6474679403759667,
+    "high_interest_rate": 1.0,
+    "consumer_stress": 1.0209334928480427
+  },
+  "portfolio_expected_loss_limit": 3000000
+}

@@ -23,7 +23,7 @@ Explainer choice:
   exact, fast, and handles missing values the same way the model itself
   does, no background dataset needed.
 
-Per CLAUDE.md convention, summary/dependence plots subsample rows for
+Per docs/ENGINEERING_LOG.md convention, summary/dependence plots subsample rows for
 runtime (documented sample size below) -- individual customer
 explanations use the customer's own single row, not a sample.
 

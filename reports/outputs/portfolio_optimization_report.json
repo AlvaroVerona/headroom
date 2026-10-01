@@ -1,0 +1,48 @@
+{
+  "solver_status": "OPTIMAL",
+  "solve_seconds": 1.0629385419888422,
+  "profit_efficiency_by_segment": {
+    "near_prime": 0.04313704113681765,
+    "prime": 0.022233905084972378,
+    "subprime": 0.05651020590598451
+  },
+  "funded_rate_by_segment": {
+    "near_prime": 0.7232824427480916,
+    "prime": 0.20013297872340424,
+    "subprime": 0.3479492548343392
+  },
+  "unconstrained_metrics": {
+    "n_funded": 38879,
+    "n_pool": 38879,
+    "total_exposure": 320509000.0,
+    "total_expected_loss": 1462560.3499589567,
+    "total_expected_profit": 12377078.098420916,
+    "average_pd": 0.033727888921440304,
+    "high_risk_exposure_pct": 0.184083754278351
+  },
+  "mip_optimal_metrics": {
+    "n_funded": 17205,
+    "n_pool": 38879,
+    "total_exposure": 150000000.0,
+    "total_expected_loss": 939347.558786495,
+    "total_expected_profit": 8186016.979026727,
+    "average_pd": 0.03557007912658989,
+    "high_risk_exposure_pct": 0.15
+  },
+  "greedy_baseline_metrics": {
+    "n_funded": 18053,
+    "n_pool": 38879,
+    "total_exposure": 150000000.0,
+    "total_expected_loss": 860010.247333844,
+    "total_expected_profit": 7595746.073477399,
+    "average_pd": 0.03702585967911242,
+    "high_risk_exposure_pct": 0.13957
+  },
+  "mip_vs_greedy_profit_improvement": 590270.9055493288,
+  "constraints": {
+    "portfolio_exposure_limit": 150000000,
+    "portfolio_expected_loss_limit": 3000000,
+    "max_average_pd": 0.05,
+    "max_high_risk_exposure_pct": 0.15
+  }
+}

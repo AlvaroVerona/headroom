@@ -412,7 +412,7 @@ def write_report(stats: dict) -> None:
         f"Mean {s['utilization_distribution']['overall']['mean']:.1%}, "
         f"{s['utilization_distribution']['fraction_at_cap']:.1%} of rows at/near the credit "
         "ceiling (≥99.9% utilization) — consistent with the generator's documented subprime "
-        "behavior (see CLAUDE.md Phase 1 notes), not a data artifact.",
+        "behavior (see docs/ENGINEERING_LOG.md Phase 1 notes), not a data artifact.",
         "![utilization](../figures/eda/03_utilization_distribution.png)",
         "",
         "## Default rate",
@@ -438,7 +438,7 @@ def write_report(stats: dict) -> None:
         f"Flat across age bands ({min(age_rates):.1%}-{max(age_rates):.1%}, no meaningful "
         "trend) — by design, `age` doesn't feed the generator's default hazard directly; "
         "it's driven by segment, utilization and delinquency dynamics instead (see "
-        "CLAUDE.md). Relevant later: this makes `age` a poor and unnecessary model input "
+        "docs/ENGINEERING_LOG.md). Relevant later: this makes `age` a poor and unnecessary model input "
         "on its own — the spec explicitly warns against protected characteristics as "
         "direct default-model inputs, and this data gives no predictive reason to use one "
         "anyway.",
@@ -504,7 +504,7 @@ def write_report(stats: dict) -> None:
         "Utilization by segment across the full 36-month history (not just the three "
         "snapshots) — shows each segment settling into its own equilibrium band rather "
         "than drifting monotonically, consistent with the steady-state balance dynamics "
-        "documented in CLAUDE.md.",
+        "documented in docs/ENGINEERING_LOG.md.",
         "![utilization over time](../figures/eda/14_utilization_over_time.png)",
         "",
         "## Delinquency evolution",
@@ -513,7 +513,7 @@ def write_report(stats: dict) -> None:
         "settling into a stable band (subprime ~17%, near_prime ~11-12%, prime ~8%) — a "
         "burn-in effect, not a real worsening trend: every customer starts at DPD=0 by "
         "construction, and the AR(1) distress process (`DISTRESS_PERSISTENCE=0.92`, see "
-        "CLAUDE.md) takes time to reach its stationary distribution from that deterministic "
+        "docs/ENGINEERING_LOG.md) takes time to reach its stationary distribution from that deterministic "
         "starting point. The snapshot months (12/18/24) all fall after this ramp-up "
         "window closes, which is convenient — feature values at each snapshot reflect the "
         "segment's steady-state behavior rather than the artificial early-month ramp.",

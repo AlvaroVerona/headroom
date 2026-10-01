@@ -9,7 +9,7 @@ Days-past-due moves in 30-day cycles (0/30/60/90/...), the standard
 industry delinquency-bucket convention: a missed-payment month adds a
 cycle, an on-time/catch-up month removes one. default_12m and
 delinquent_90d (both built in labels.py) are read directly off this
-trajectory -- see CLAUDE.md for why 90+ DPD is the default definition.
+trajectory -- see docs/ENGINEERING_LOG.md for why 90+ DPD is the default definition.
 
 Credit limit is assigned once at origination and held constant through
 history (no organic mid-history limit changes) -- a deliberate
@@ -45,7 +45,7 @@ FULL_PAYOFF_PROB_BY_SEGMENT = {"prime": 0.35, "near_prime": 0.18, "subprime": 0.
 # empirically re-checked (the equilibrium formula alone under-predicts
 # realized utilization once full-payoff months are mixed in, since those
 # periodically reset balance to zero and pull the time-average down) --
-# see CLAUDE.md.
+# see docs/ENGINEERING_LOG.md.
 REVOLVER_PAYOFF_FRACTION_BY_SEGMENT = {"prime": (0.35, 0.65), "near_prime": (0.25, 0.50), "subprime": (0.20, 0.42)}
 LIMIT_INCOME_MULTIPLE_BY_SEGMENT = {"prime": 2.0, "near_prime": 1.3, "subprime": 1.0}
 
@@ -56,7 +56,7 @@ UTILIZATION_DISTRESS_COEF = 0.05  # extra monthly hazard per 100% utilization
 # weakly-persistent noise mostly just jitters an independent-ish Bernoulli
 # hazard, which makes 3-in-a-row rare almost regardless of the base rate.
 # High persistence + a shock big enough to swing hazard meaningfully is
-# what produces those patches; calibrated empirically (see CLAUDE.md) to a
+# what produces those patches; calibrated empirically (see docs/ENGINEERING_LOG.md) to a
 # ~3-6% default_12m rate at each snapshot -- low enough to be realistic,
 # high enough for 50,000 customers to give a robust number of positive
 # labels per cohort.
@@ -144,7 +144,7 @@ def simulate_behavior(
         # customer whose desired spend chronically exceeds headroom just
         # gets clipped to EXACTLY the limit every such month (utilization
         # pinned at 100.000%) instead of naturally fluctuating just under
-        # it -- see CLAUDE.md.
+        # it -- see docs/ENGINEERING_LOG.md.
         desired_spend = income[:, t] * spend_ratio * rng.lognormal(0, 0.15, size=n)
         available_headroom = np.maximum(credit_limit - balance_prev, 0)
         spend[:, t] = np.minimum(desired_spend, available_headroom)

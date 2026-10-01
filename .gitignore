@@ -47,3 +47,7 @@ reports/model_cards/*.md
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Sample dashboard outputs: the small JSON reports are committed so `make dashboard`
+# works right after cloning, without running the full pipeline.
+!reports/outputs/*.json

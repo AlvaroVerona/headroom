@@ -2,6 +2,13 @@
 
 **Dynamic Credit Limit Optimization for a Digital Bank**
 
+[![CI](https://github.com/AlvaroVerona/headroom/actions/workflows/ci.yml/badge.svg)](https://github.com/AlvaroVerona/headroom/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+**Try it in 2 minutes:** `pip install -e .` then `make dashboard` — sample results
+from a full run are included in `reports/outputs/`, so no pipeline run is needed.
+
 An end-to-end credit-risk decision platform: it validates messy customer/transaction
 data, models probability of default and expected loss, prices customer profitability,
 optimizes credit limits — per customer and across the portfolio — subject to risk and
@@ -11,7 +18,7 @@ resulting book for drift.
 Every number in this README comes from an actual run of the pipeline (`make all`,
 seed=42). Nothing here is fabricated or hand-typed to look good — where a result was
 a real bug, a documented simplification, or a surprising-but-explained finding,
-that's said explicitly below and in `CLAUDE.md`, not smoothed over.
+that's said explicitly below and in `docs/ENGINEERING_LOG.md`, not smoothed over.
 
 ## Why this exists
 
@@ -65,7 +72,7 @@ there too, nothing hardcoded in `src/`.
 | Tests | **227/227 passing** |
 
 The full per-phase breakdown — methodology, exact figures, and every bug found and
-fixed while building each stage — lives in `CLAUDE.md`; the highlights are below.
+fixed while building each stage — lives in `docs/ENGINEERING_LOG.md`; the highlights are below.
 
 ## How it works
 
@@ -166,12 +173,12 @@ Monte Carlo Risk (shown above) · Monitoring.
 
 ## Verification
 
-Before calling Phase 7 done, the full pipeline was re-run end to end with
+Before release, the full pipeline was re-run end to end with
 `make all` (data generation through drift monitoring, seed=42) and the dashboard was
 opened live and walked through page by page in a browser. Every stage reproduced the
 figures documented above, and **227/227 tests passed** (215 pipeline tests + 12
 dashboard tests, the latter run headlessly via Streamlit's `AppTest` harness — no
-browser required under `pytest`). See `CLAUDE.md` for the full list of real bugs
+browser required under `pytest`). See `docs/ENGINEERING_LOG.md` for the full list of real bugs
 found and fixed during development, phase by phase — left visible on purpose, since
 finding and fixing them honestly is the actual engineering content of this project.
 
@@ -183,12 +190,12 @@ Streamlit, matplotlib · OR-Tools · pytest
 ## Installation
 
 ```bash
-git clone <repo-url> headroom
+git clone https://github.com/AlvaroVerona/headroom.git
 cd headroom
 python3 -m venv .venv && source .venv/bin/activate
 make install
-make all          # full pipeline: data -> quality -> risk -> economics -> optimize -> simulate -> stress -> monitor -> test
-make dashboard    # streamlit run app/app.py
+make dashboard    # quick look: uses the sample results committed in reports/outputs/
+make all          # full pipeline (regenerates everything, ~6M rows; allow a while): data -> quality -> risk -> economics -> optimize -> simulate -> stress -> monitor -> test
 ```
 
 Individual stages: `make generate-data`, `make validate-data`, `make quality-report`,
@@ -214,7 +221,8 @@ headroom/
 ├── tests/                        # 227 tests
 ├── reports/{outputs,figures,model_cards}/  # pipeline artifacts, gitignored
 ├── data/{raw,processed,quarantine}/          # RAW -> VALIDATED -> QUARANTINED, gitignored
-└── CLAUDE.md                                   # detailed engineering log: every decision and bug, with why
+├── docs/                       # engineering log (every decision and bug, with why) + decision notes
+└── LICENSE                     # MIT
 ```
 
 ## Limitations

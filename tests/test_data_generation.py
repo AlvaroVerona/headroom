@@ -2,7 +2,7 @@
 valid IDs (pre-injection), and calibration sanity checks (default rate in
 a believable range, utilization not degenerately pinned at the credit
 ceiling -- regression coverage for the two real calibration bugs found
-while building this, see CLAUDE.md) -- plus injected-issue presence."""
+while building this, see docs/ENGINEERING_LOG.md) -- plus injected-issue presence."""
 
 from __future__ import annotations
 

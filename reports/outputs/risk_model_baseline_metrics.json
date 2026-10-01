@@ -1,0 +1,163 @@
+{
+  "model": "LogisticRegression",
+  "features": [
+    "employment_tenure_months",
+    "customer_tenure_months",
+    "employment_stable",
+    "monthly_income",
+    "income_volatility",
+    "credit_utilization",
+    "max_utilization",
+    "credit_exposure",
+    "debt_to_income",
+    "payment_ratio",
+    "transaction_count",
+    "average_transaction_amount",
+    "spending_volatility",
+    "essential_spending_ratio",
+    "discretionary_spending_ratio",
+    "cash_withdrawal_ratio",
+    "days_past_due",
+    "delinquency_count",
+    "recent_delinquency",
+    "max_days_past_due",
+    "average_balance",
+    "min_balance_12m",
+    "savings_rate",
+    "monthly_spend_6m_avg",
+    "credit_utilization_3m_avg",
+    "end_balance_6m_avg",
+    "monthly_income_3m_growth",
+    "monthly_income_6m_growth",
+    "monthly_spend_3m_growth",
+    "monthly_spend_6m_growth",
+    "credit_utilization_3m_growth",
+    "credit_utilization_6m_growth"
+  ],
+  "excluded_protected_characteristics": [
+    "age"
+  ],
+  "dropped_for_correlation": {
+    "income_stability": {
+      "correlated_with": "income_volatility",
+      "correlation": 1.0
+    },
+    "minimum_payment_ratio": {
+      "correlated_with": "payment_ratio",
+      "correlation": 1.0
+    },
+    "cash_buffer": {
+      "correlated_with": "credit_exposure",
+      "correlation": 0.9465
+    },
+    "monthly_income_3m_avg": {
+      "correlated_with": "monthly_income",
+      "correlation": 0.9958
+    },
+    "monthly_income_6m_avg": {
+      "correlated_with": "monthly_income",
+      "correlation": 0.9947
+    },
+    "monthly_income_12m_avg": {
+      "correlated_with": "monthly_income",
+      "correlation": 0.9942
+    },
+    "monthly_spend_3m_avg": {
+      "correlated_with": "transaction_count",
+      "correlation": 0.9411
+    },
+    "monthly_spend_12m_avg": {
+      "correlated_with": "monthly_spend_6m_avg",
+      "correlation": 0.9898
+    },
+    "credit_utilization_6m_avg": {
+      "correlated_with": "credit_utilization_3m_avg",
+      "correlation": 0.9479
+    },
+    "credit_utilization_12m_avg": {
+      "correlated_with": "max_utilization",
+      "correlation": 0.9315
+    },
+    "end_balance_3m_avg": {
+      "correlated_with": "average_balance",
+      "correlation": 0.9657
+    },
+    "end_balance_12m_avg": {
+      "correlated_with": "end_balance_6m_avg",
+      "correlation": 0.936
+    },
+    "end_balance_3m_growth": {
+      "correlated_with": "credit_utilization_3m_growth",
+      "correlation": 1.0
+    },
+    "end_balance_6m_growth": {
+      "correlated_with": "credit_utilization_6m_growth",
+      "correlation": 1.0
+    }
+  },
+  "classification_threshold": 0.5,
+  "metrics": {
+    "train": {
+      "n": 47624,
+      "base_rate": 0.045481269947925416,
+      "mean_predicted_probability": 0.42127403483381415,
+      "roc_auc": 0.7386370002454145,
+      "pr_auc": 0.16041472881258778,
+      "log_loss": 0.5935630307180995,
+      "brier_score": 0.19886337247804536,
+      "precision_at_0.5": 0.10173640327392336,
+      "recall_at_0.5": 0.6140350877192983,
+      "f1_at_0.5": 0.17455213596692695
+    },
+    "validation": {
+      "n": 47513,
+      "base_rate": 0.046913476311746256,
+      "mean_predicted_probability": 0.45456933702806446,
+      "roc_auc": 0.7467019667392775,
+      "pr_auc": 0.16506860485138303,
+      "log_loss": 0.6630655213164438,
+      "brier_score": 0.22801804159353706,
+      "precision_at_0.5": 0.0934573793270102,
+      "recall_at_0.5": 0.6940331987438313,
+      "f1_at_0.5": 0.1647321903950591
+    },
+    "test": {
+      "n": 47438,
+      "base_rate": 0.048231375690374806,
+      "mean_predicted_probability": 0.4855622575964938,
+      "roc_auc": 0.7242187270094247,
+      "pr_auc": 0.1479429376433167,
+      "log_loss": 0.7418029119094085,
+      "brier_score": 0.2594139606419834,
+      "precision_at_0.5": 0.08292508675239844,
+      "recall_at_0.5": 0.7102272727272727,
+      "f1_at_0.5": 0.14851032717967466
+    }
+  },
+  "coefficients": {
+    "most_risk_increasing": {
+      "delinquency_count": 0.2716,
+      "days_past_due": 0.2342,
+      "recent_delinquency": 0.1963,
+      "essential_spending_ratio": 0.1132,
+      "credit_utilization": 0.1106,
+      "end_balance_6m_avg": 0.1004,
+      "credit_utilization_6m_growth": 0.1002,
+      "max_days_past_due": 0.0949,
+      "savings_rate": 0.0747,
+      "average_transaction_amount": 0.0597
+    },
+    "most_risk_reducing": {
+      "discretionary_spending_ratio": -0.2171,
+      "average_balance": -0.1084,
+      "credit_utilization_3m_growth": -0.0741,
+      "monthly_income": -0.056,
+      "monthly_spend_6m_growth": -0.0482,
+      "monthly_income_3m_growth": -0.035,
+      "debt_to_income": -0.0303,
+      "employment_stable": -0.0237,
+      "min_balance_12m": -0.0169,
+      "credit_utilization_3m_avg": -0.0162
+    }
+  }
+}

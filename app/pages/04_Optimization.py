@@ -97,5 +97,5 @@ with col12:
 st.info(
     "Funding rate is NOT \"safest first\": exposure is the binding constraint, and prime's "
     "profit-per-euro-of-exposure is the segment's worst, so prime gets funded the LEAST "
-    "despite being the lowest-risk segment. See CLAUDE.md for the full explanation."
+    "despite being the lowest-risk segment. See docs/ENGINEERING_LOG.md for the full explanation."
 )

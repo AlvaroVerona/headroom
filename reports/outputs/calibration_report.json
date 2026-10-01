@@ -1,0 +1,102 @@
+{
+  "logistic_regression": {
+    "model": "logistic_regression",
+    "chosen_method": "sigmoid",
+    "calib_select_scores": {
+      "raw": {
+        "roc_auc": 0.756705681690798,
+        "log_loss": 0.6616813831315453,
+        "brier_score": 0.227493311868276,
+        "ece": 0.40797838385973945,
+        "mean_predicted_probability": 0.45491191923878554,
+        "actual_base_rate": 0.046933535379046175
+      },
+      "sigmoid": {
+        "roc_auc": 0.756705681690798,
+        "log_loss": 0.16772522125693573,
+        "brier_score": 0.04190769493954346,
+        "ece": 0.0024026377045774754,
+        "mean_predicted_probability": 0.04673424822754289,
+        "actual_base_rate": 0.046933535379046175
+      },
+      "isotonic": {
+        "roc_auc": 0.755321314450743,
+        "log_loss": 0.16936310303243116,
+        "brier_score": 0.04198378924546374,
+        "ece": 0.002134001562680537,
+        "mean_predicted_probability": 0.046731913343603944,
+        "actual_base_rate": 0.046933535379046175
+      }
+    },
+    "test_scores": {
+      "raw": {
+        "roc_auc": 0.7242187270094247,
+        "log_loss": 0.7418029119094085,
+        "brier_score": 0.2594139606419834,
+        "ece": 0.43733088190611896,
+        "mean_predicted_probability": 0.4855622575964938,
+        "actual_base_rate": 0.048231375690374806
+      },
+      "sigmoid": {
+        "roc_auc": 0.7242187270094247,
+        "log_loss": 0.1770783904242348,
+        "brier_score": 0.043991629150344075,
+        "ece": 0.007312748609687861,
+        "mean_predicted_probability": 0.055544124300062676,
+        "actual_base_rate": 0.048231375690374806
+      }
+    },
+    "n_calib_fit": 23756,
+    "n_calib_select": 23757
+  },
+  "xgboost": {
+    "model": "xgboost",
+    "chosen_method": "isotonic",
+    "calib_select_scores": {
+      "raw": {
+        "roc_auc": 0.7588852495639874,
+        "log_loss": 0.6173951029777527,
+        "brier_score": 0.21184930205345154,
+        "ece": 0.39448011149790885,
+        "mean_predicted_probability": 0.44141364097595215,
+        "actual_base_rate": 0.046933535379046175
+      },
+      "sigmoid": {
+        "roc_auc": 0.7588852495639874,
+        "log_loss": 0.16688674799051048,
+        "brier_score": 0.04173275256134656,
+        "ece": 0.0031337121015988347,
+        "mean_predicted_probability": 0.047015267691495825,
+        "actual_base_rate": 0.046933535379046175
+      },
+      "isotonic": {
+        "roc_auc": 0.7592492106617212,
+        "log_loss": 0.16683761186451007,
+        "brier_score": 0.04170114151495656,
+        "ece": 0.002528845919652491,
+        "mean_predicted_probability": 0.0470208692634379,
+        "actual_base_rate": 0.046933535379046175
+      }
+    },
+    "test_scores": {
+      "raw": {
+        "roc_auc": 0.7298172467067816,
+        "log_loss": 0.6462695598602295,
+        "brier_score": 0.22517089545726776,
+        "ece": 0.4075585104390961,
+        "mean_predicted_probability": 0.4557899236679077,
+        "actual_base_rate": 0.048231375690374806
+      },
+      "isotonic": {
+        "roc_auc": 0.7290786684245986,
+        "log_loss": 0.1767108229731131,
+        "brier_score": 0.043261621579366125,
+        "ece": 0.0015584947171383195,
+        "mean_predicted_probability": 0.04972662996735966,
+        "actual_base_rate": 0.048231375690374806
+      }
+    },
+    "n_calib_fit": 23756,
+    "n_calib_select": 23757
+  }
+}

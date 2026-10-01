@@ -1,0 +1,121 @@
+{
+  "monitored_features": [
+    "delinquency_count",
+    "recent_delinquency",
+    "days_past_due",
+    "discretionary_spending_ratio",
+    "credit_utilization_6m_avg",
+    "max_utilization"
+  ],
+  "score_drift": {
+    "train_vs_validation": {
+      "psi": 0.0236469043232537,
+      "severity": "STABLE",
+      "baseline_mean": 0.05037756692502616,
+      "current_mean": 0.05664621464729934
+    },
+    "validation_vs_test": {
+      "psi": 0.010843052310201756,
+      "severity": "STABLE",
+      "baseline_mean": 0.05664621464729934,
+      "current_mean": 0.06087231250164804
+    },
+    "train_vs_test": {
+      "psi": 0.0681342456536609,
+      "severity": "STABLE",
+      "baseline_mean": 0.05037756692502616,
+      "current_mean": 0.06087231250164804
+    }
+  },
+  "feature_drift": {
+    "delinquency_count": {
+      "train_vs_validation": {
+        "psi": 0.11845831655932801,
+        "severity": "MODERATE"
+      },
+      "validation_vs_test": {
+        "psi": 0.06928278756768555,
+        "severity": "STABLE"
+      },
+      "train_vs_test": {
+        "psi": 0.34527317384117273,
+        "severity": "SIGNIFICANT"
+      }
+    },
+    "recent_delinquency": {
+      "train_vs_validation": {
+        "psi": 0.0,
+        "severity": "STABLE"
+      },
+      "validation_vs_test": {
+        "psi": 0.0,
+        "severity": "STABLE"
+      },
+      "train_vs_test": {
+        "psi": 0.0,
+        "severity": "STABLE"
+      }
+    },
+    "days_past_due": {
+      "train_vs_validation": {
+        "psi": 7.491072200433522e-05,
+        "severity": "STABLE"
+      },
+      "validation_vs_test": {
+        "psi": 0.00017687543915201968,
+        "severity": "STABLE"
+      },
+      "train_vs_test": {
+        "psi": 0.00048202280305952136,
+        "severity": "STABLE"
+      }
+    },
+    "discretionary_spending_ratio": {
+      "train_vs_validation": {
+        "psi": 0.00021218593564850154,
+        "severity": "STABLE"
+      },
+      "validation_vs_test": {
+        "psi": 0.00014605147347159766,
+        "severity": "STABLE"
+      },
+      "train_vs_test": {
+        "psi": 0.00047520948243918385,
+        "severity": "STABLE"
+      }
+    },
+    "credit_utilization_6m_avg": {
+      "train_vs_validation": {
+        "psi": 0.0006244107240908048,
+        "severity": "STABLE"
+      },
+      "validation_vs_test": {
+        "psi": 0.0002695892047049714,
+        "severity": "STABLE"
+      },
+      "train_vs_test": {
+        "psi": 0.0012095934266614175,
+        "severity": "STABLE"
+      }
+    },
+    "max_utilization": {
+      "train_vs_validation": {
+        "psi": 0.025361338327535465,
+        "severity": "STABLE"
+      },
+      "validation_vs_test": {
+        "psi": 0.012165241220960445,
+        "severity": "STABLE"
+      },
+      "train_vs_test": {
+        "psi": 0.0733086523304795,
+        "severity": "STABLE"
+      }
+    }
+  },
+  "any_significant_drift": true,
+  "thresholds": {
+    "psi_warning_threshold": 0.1,
+    "psi_critical_threshold": 0.25
+  }
+}

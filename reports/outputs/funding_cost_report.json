@@ -1,0 +1,34 @@
+{
+  "n_test_rows": 45596,
+  "n_excluded_missing_inputs": 2405,
+  "funding_rate_by_scenario": {
+    "base": 0.05,
+    "recession": 0.060000000000000005,
+    "high_interest_rate": 0.08,
+    "consumer_stress": 0.05
+  },
+  "mean_funding_cost_by_scenario": {
+    "base": 4.6753749488259215,
+    "recession": 5.610449938591105,
+    "high_interest_rate": 7.480599918121473,
+    "consumer_stress": 4.6753749488259215
+  },
+  "total_portfolio_funding_cost_by_scenario": {
+    "base": 213178.3961666667,
+    "recession": 255814.07540000003,
+    "high_interest_rate": 341085.4338666667,
+    "consumer_stress": 213178.3961666667
+  },
+  "base_scenario": {
+    "mean_funding_cost": 4.6753749488259215,
+    "mean_interest_revenue": 21.34870510980678,
+    "mean_net_interest_margin": 16.67333016098086,
+    "fraction_positive_nim": 0.9526054917097991,
+    "n_negative_nim": 0
+  },
+  "nim_by_segment": {
+    "near_prime": 19.29424165136874,
+    "prime": 6.227216402179599,
+    "subprime": 27.066625923346198
+  }
+}

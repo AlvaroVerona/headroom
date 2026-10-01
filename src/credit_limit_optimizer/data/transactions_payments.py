@@ -12,7 +12,7 @@ transaction-level EDA/dashboard drill-down, not as the source of those
 aggregates. This keeps total row count in the single-digit millions
 (comfortably over the spec's 500,000+ floor) instead of tens of millions,
 which would make the whole pipeline unworkably slow for a portfolio
-project. See CLAUDE.md.
+project. See docs/ENGINEERING_LOG.md.
 """
 
 from __future__ import annotations

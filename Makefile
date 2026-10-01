@@ -59,7 +59,7 @@ test:
 	$(PYTHON) -m pytest -v
 
 dashboard:
-	streamlit run app/streamlit_app.py
+	streamlit run app/app.py
 
 all: generate-data validate-data quality-report eda features train train-xgboost calibrate explain expected-loss economics optimize-customer optimize-portfolio simulate stress monitor test
 

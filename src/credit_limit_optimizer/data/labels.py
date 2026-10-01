@@ -4,7 +4,7 @@ behavior targets -- for each of the three time-separated snapshot cohorts
 (§15). This module only ever READS the trajectory at or after the
 snapshot month to build the LABEL; feature engineering (a separate module)
 is responsible for making sure no feature ever does the same for months
-after its own snapshot. See CLAUDE.md for the snapshot design and why 36
+after its own snapshot. See docs/ENGINEERING_LOG.md for the snapshot design and why 36
 months of history exist at all.
 
 default_12m definition: reaches 90+ days-past-due at any point in the 12

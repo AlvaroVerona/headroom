@@ -4,7 +4,7 @@ Real gaps, deliberately not fixed for Phase 7 — either because the fix is a
 genuine scope decision (needs real external data or a materially harder model)
 rather than a quick patch, or because the project's own scope was set at "a
 portfolio project demonstrating the full chain," not a production system. Each
-item below has its rationale in [[Home|CLAUDE.md]] or the README's own
+item below has its rationale in [[Home|docs/ENGINEERING_LOG.md]] or the README's own
 Limitations section; this note tracks *what to decide next*, not what happened.
 
 ## Real bureau/transaction data integration
