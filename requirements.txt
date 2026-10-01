@@ -13,3 +13,4 @@ ortools>=9.10
 pyyaml>=6.0
 pytest>=8.2
 pytest-cov>=5.0
+-e .
